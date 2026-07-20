@@ -1,0 +1,52 @@
+{
+  "achievements": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "date": "2026-06-15",
+      "category": "Trail",
+      "distance": 42.195,
+      "name": "Ultra Trail du Mont Blanc",
+      "photoLinks": [
+        "https://example.com/utmb/photo1.jpg",
+        "https://example.com/utmb/photo2.jpg"
+      ],
+      "videoLinks": [
+        "https://youtube.com/watch?v=example1"
+      ],
+      "eventWebsite": "https://utmb.world",
+      "rankingScratch": 156,
+      "rankingCategory": "Master 1 H",
+      "rankingCategoryPosition": 12
+    },
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
+      "date": "2026-04-22",
+      "category": "Run",
+      "distance": 21.1,
+      "name": "Semi-Marathon de Paris",
+      "photoLinks": [
+        "https://example.com/paris/finish.jpg"
+      ],
+      "videoLinks": [],
+      "eventWebsite": "https://parismarathon.com",
+      "rankingScratch": 487,
+      "rankingCategory": "Senior H",
+      "rankingCategoryPosition": 89
+    },
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440002",
+      "date": "2025-11-10",
+      "category": "Trail",
+      "distance": 15.5,
+      "name": "Trail des Crêtes",
+      "photoLinks": [],
+      "videoLinks": [
+        "https://youtube.com/watch?v=example2"
+      ],
+      "eventWebsite": "https://traildescretes.fr",
+      "rankingScratch": 23,
+      "rankingCategory": "Master 0 H",
+      "rankingCategoryPosition": 5
+    }
+  ]
+}
