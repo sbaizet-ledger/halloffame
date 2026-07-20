@@ -296,7 +296,7 @@ export default function RootLayout({ children }) {
 
 **2.3 Color Picker UI**
 
-Create settings page `/app/settings/page.tsx`:
+Create profile page `/app/profile/page.tsx`:
 - Profile edit form (nickname, bio, location)
 - Avatar upload button
 - Color picker for primary color

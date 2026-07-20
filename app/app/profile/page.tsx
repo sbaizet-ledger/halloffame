@@ -10,7 +10,85 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Palette } from 'lucide-react';
+
+// Color conversion utilities
+function hexToOklch(hex: string): string {
+  // Convert hex to RGB
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  // Convert RGB to linear RGB
+  const toLinear = (c: number) => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const rl = toLinear(r);
+  const gl = toLinear(g);
+  const bl = toLinear(b);
+
+  // Convert to XYZ (D65 illuminant)
+  const x = 0.4124564 * rl + 0.3575761 * gl + 0.1804375 * bl;
+  const y = 0.2126729 * rl + 0.7151522 * gl + 0.0721750 * bl;
+  const z = 0.0193339 * rl + 0.1191920 * gl + 0.9503041 * bl;
+
+  // Convert XYZ to OKLab
+  const l_ = Math.cbrt(0.8189330101 * x + 0.3618667424 * y - 0.1288597137 * z);
+  const m_ = Math.cbrt(0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z);
+  const s_ = Math.cbrt(0.0482003018 * x + 0.2643662691 * y + 0.6338517070 * z);
+
+  const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+  const b_ = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+
+  // Convert to LCH
+  const C = Math.sqrt(a * a + b_ * b_);
+  const H = Math.atan2(b_, a) * 180 / Math.PI;
+
+  return `oklch(${L.toFixed(2)} ${C.toFixed(2)} ${H >= 0 ? H.toFixed(0) : (H + 360).toFixed(0)})`;
+}
+
+function oklchToHex(oklch: string): string {
+  // Parse oklch string
+  const match = oklch.match(/oklch\(([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)\)/);
+  if (!match) return '#f97316'; // Default orange
+
+  const L = parseFloat(match[1]);
+  const C = parseFloat(match[2]);
+  const H = parseFloat(match[3]) * Math.PI / 180;
+
+  // Convert to OKLab
+  const a = C * Math.cos(H);
+  const b_ = C * Math.sin(H);
+
+  // Convert OKLab to XYZ
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b_;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b_;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b_;
+
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+
+  const x = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const y = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const z = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+
+  // Convert XYZ to linear RGB
+  let rl = +3.2404542 * x - 1.5371385 * y - 0.4985314 * z;
+  let gl = -0.9692660 * x + 1.8760108 * y + 0.0415560 * z;
+  let bl = +0.0556434 * x - 0.2040259 * y + 1.0572252 * z;
+
+  // Convert linear RGB to sRGB
+  const toSrgb = (c: number) => {
+    c = Math.max(0, Math.min(1, c));
+    return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  };
+
+  const r = Math.round(toSrgb(rl) * 255);
+  const g = Math.round(toSrgb(gl) * 255);
+  const b = Math.round(toSrgb(bl) * 255);
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -28,6 +106,7 @@ export default function ProfilePage() {
     stravaUrl: '',
     instagram: '',
     website: '',
+    primaryColor: '#f97316', // Default orange
   });
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -54,6 +133,7 @@ export default function ProfilePage() {
         stravaUrl: data.socialLinks?.strava || '',
         instagram: data.socialLinks?.instagram || '',
         website: data.socialLinks?.website || '',
+        primaryColor: oklchToHex(data.theme?.primaryColor || 'oklch(0.65 0.24 45)'),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
@@ -114,7 +194,9 @@ export default function ProfilePage() {
         location: formData.location || undefined,
         joinedYear: formData.joinedYear ? parseInt(formData.joinedYear) : undefined,
         avatarPath,
-        theme: profile?.theme || { primaryColor: 'oklch(0.65 0.24 45)' },
+        theme: {
+          primaryColor: hexToOklch(formData.primaryColor),
+        },
         socialLinks: {
           strava: formData.stravaUrl || undefined,
           instagram: formData.instagram || undefined,
@@ -243,6 +325,42 @@ export default function ProfilePage() {
                   min="1900"
                   max={new Date().getFullYear()}
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Theme Customization */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Theme</h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="primaryColor">Primary Color</Label>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="color"
+                      id="primaryColor"
+                      value={formData.primaryColor}
+                      onChange={(e) => handleInputChange('primaryColor', e.target.value)}
+                      className="w-16 h-10 rounded border border-input cursor-pointer"
+                    />
+                    <Input
+                      value={formData.primaryColor}
+                      onChange={(e) => handleInputChange('primaryColor', e.target.value)}
+                      placeholder="#f97316"
+                      className="flex-1 font-mono"
+                    />
+                  </div>
+                  <div 
+                    className="w-24 h-10 rounded border flex items-center justify-center text-sm font-medium text-white"
+                    style={{ backgroundColor: formData.primaryColor }}
+                  >
+                    <Palette className="h-5 w-5" />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This color will be used for buttons, accents, and highlights throughout the app.
+                </p>
               </div>
             </div>
           </div>
