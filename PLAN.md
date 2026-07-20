@@ -29,7 +29,7 @@ npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import
 
 **1.3 Install shadcn/ui**
 ```bash
-npx shadcn-ui@latest init
+npx shadcn@latest init
 ```
 Settings:
 - Style: Default
@@ -38,7 +38,7 @@ Settings:
 
 **1.4 Add Required shadcn Components**
 ```bash
-npx shadcn-ui@latest add card button dialog form input select textarea badge tabs alert
+npx shadcn@latest add card button dialog form input select textarea badge tabs alert
 ```
 
 **1.5 Create Environment Variables**
