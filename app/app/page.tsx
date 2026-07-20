@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Achievement } from '@/lib/types';
 import { AchievementCard } from '@/components/achievement-card';
+import { AchievementTable } from '@/components/achievement-table';
 import { AchievementForm } from '@/components/achievement-form';
 import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
@@ -40,6 +41,15 @@ export default function Home() {
   
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [sortOption, setSortOption] = useState<SortOption>('date');
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('table');
+
+  // Load view preference from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('halloffame-view');
+    if (saved === 'card' || saved === 'table') {
+      setViewMode(saved);
+    }
+  }, []);
 
   // Fetch achievements on mount
   useEffect(() => {
@@ -180,6 +190,11 @@ export default function Home() {
     setEditingAchievement(null);
   };
 
+  const handleViewChange = (view: 'card' | 'table') => {
+    setViewMode(view);
+    localStorage.setItem('halloffame-view', view);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -217,6 +232,8 @@ export default function Home() {
             <FilterToolbar
               onCategoryFilter={setCategoryFilter}
               onSort={setSortOption}
+              onViewChange={handleViewChange}
+              currentView={viewMode}
             />
           </div>
         )}
@@ -243,18 +260,28 @@ export default function Home() {
           </div>
         )}
 
-        {/* Achievement Grid */}
+        {/* Achievement Display */}
         {!loading && filtered.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(achievement => (
-              <AchievementCard
-                key={achievement.id}
-                achievement={achievement}
+          <>
+            {viewMode === 'card' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map(achievement => (
+                  <AchievementCard
+                    key={achievement.id}
+                    achievement={achievement}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteClick}
+                  />
+                ))}
+              </div>
+            ) : (
+              <AchievementTable
+                achievements={filtered}
                 onEdit={handleEdit}
                 onDelete={handleDeleteClick}
               />
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         {/* No Results After Filter */}
