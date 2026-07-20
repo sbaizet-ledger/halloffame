@@ -102,3 +102,12 @@ export interface Badge {
 export interface BadgesData {
   badges: Badge[];
 }
+
+export interface Milestone {
+  date: string;
+  title: string;
+  description?: string;
+  type: "first-race" | "personal-best" | "badge" | "custom" | "year-summary";
+  icon?: string;
+  achievement?: Achievement;
+}

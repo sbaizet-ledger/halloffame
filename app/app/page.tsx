@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Achievement, UserProfile } from '@/lib/types';
+import { Achievement, UserProfile, Milestone } from '@/lib/types';
 import { AchievementCard } from '@/components/achievement-card';
 import { AchievementTable } from '@/components/achievement-table';
 import { AchievementForm } from '@/components/achievement-form';
@@ -10,6 +10,7 @@ import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
 import { ProfileHero } from '@/components/profile-hero';
 import { FeaturedAchievements } from '@/components/featured-achievements';
+import { MilestonesTimeline } from '@/components/milestones-timeline';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -32,6 +33,7 @@ export default function Home() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filtered, setFiltered] = useState<Achievement[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -58,6 +60,7 @@ export default function Home() {
   useEffect(() => {
     fetchAchievements();
     fetchProfile();
+    fetchMilestones();
   }, []);
 
   // Apply filters/sorts when data or filters change
@@ -110,6 +113,22 @@ export default function Home() {
     }
   };
 
+  const fetchMilestones = async () => {
+    try {
+      const res = await fetch('/api/milestones');
+      if (!res.ok) {
+        console.error('Milestones API error:', res.status, res.statusText);
+        throw new Error(`Failed to fetch milestones: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('Milestones fetched:', data.milestones?.length || 0);
+      setMilestones(data.milestones || []);
+    } catch (err) {
+      console.error('Milestones fetch error:', err instanceof Error ? err.message : String(err));
+      // Non-critical, continue without milestones
+    }
+  };
+
   // Auth flow
   const requireAuth = (action: (password: string) => Promise<void>) => {
     setPendingAction(() => action);
@@ -143,6 +162,7 @@ export default function Home() {
       }
 
       await fetchAchievements();
+      await fetchMilestones();
     });
   };
 
@@ -162,6 +182,7 @@ export default function Home() {
       }
 
       await fetchAchievements();
+      await fetchMilestones();
       setEditingAchievement(null);
     });
   };
@@ -187,6 +208,7 @@ export default function Home() {
       }
 
       await fetchAchievements();
+      await fetchMilestones();
       setShowDeleteConfirm(false);
       setDeletingId(null);
     });
@@ -271,6 +293,13 @@ export default function Home() {
         {/* Featured Achievements */}
         {!loading && achievements.length > 0 && (
           <FeaturedAchievements achievements={achievements} />
+        )}
+
+        {/* Milestones Timeline Preview */}
+        {!loading && milestones.length > 0 && (
+          <div className="mb-8">
+            <MilestonesTimeline milestones={milestones} compact={true} />
+          </div>
         )}
 
         {/* Error Alert */}

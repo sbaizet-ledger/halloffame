@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Statistics } from '@/lib/types';
+import { Statistics, Milestone } from '@/lib/types';
 import { StatCard } from '@/components/stat-card';
 import { DistanceChart } from '@/components/distance-chart';
+import { MilestonesTimeline } from '@/components/milestones-timeline';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -23,11 +24,13 @@ import {
 export default function StatisticsPage() {
   const router = useRouter();
   const [statistics, setStatistics] = useState<Statistics | null>(null);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchStatistics();
+    fetchMilestones();
   }, []);
 
   const fetchStatistics = async () => {
@@ -42,6 +45,18 @@ export default function StatisticsPage() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMilestones = async () => {
+    try {
+      const res = await fetch('/api/milestones');
+      if (!res.ok) throw new Error('Failed to fetch milestones');
+      const data = await res.json();
+      setMilestones(data.milestones || []);
+    } catch (err) {
+      console.error('Milestones fetch error:', err);
+      // Non-critical, continue without milestones
     }
   };
 
@@ -209,6 +224,13 @@ export default function StatisticsPage() {
             yearlyData={statistics.timelineYearly}
           />
         </div>
+
+        {/* Milestones Timeline */}
+        {milestones.length > 0 && (
+          <div className="mb-8">
+            <MilestonesTimeline milestones={milestones} compact={false} />
+          </div>
+        )}
       </div>
     </div>
   );
