@@ -563,3 +563,5 @@ Project is complete when:
 | 2026-07-20 | Phase 1 | ✅ Complete | Next.js init, shadcn/ui setup |
 | 2026-07-20 | Phase 2 | ✅ Complete | Types, lib functions (achievements, auth) |
 | 2026-07-20 | Phase 3 | ✅ Complete | API routes (GET/POST/PUT/DELETE). Fixed Next.js 16 async params |
+| 2026-07-20 | Phase 4 | ✅ Complete | UI components (AchievementCard, AuthDialog, AchievementForm, FilterToolbar) |
+| 2026-07-20 | Phase 5 | ✅ Complete | Main page with CRUD, filters, auth flow. Dev server running on :3000 |
