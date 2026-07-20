@@ -3,7 +3,8 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Install dependencies for sharp (image processing)
+RUN apk add --no-cache libc6-compat vips-dev build-base
 WORKDIR /app
 
 # Copy package files
@@ -26,6 +27,9 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
+# Install runtime dependencies for sharp
+RUN apk add --no-cache vips
+
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -37,8 +41,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create data directory for JSON storage
+# Create directories for JSON storage and uploads
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+RUN mkdir -p /app/public/uploads && chown nextjs:nodejs /app/public/uploads
 
 USER nextjs
 

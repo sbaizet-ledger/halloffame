@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Achievement } from '@/lib/types';
+import { Achievement, UserProfile } from '@/lib/types';
 import { AchievementCard } from '@/components/achievement-card';
 import { AchievementTable } from '@/components/achievement-table';
 import { AchievementForm } from '@/components/achievement-form';
 import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
+import { ProfileHero } from '@/components/profile-hero';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -29,6 +30,7 @@ export default function Home() {
   const router = useRouter();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filtered, setFiltered] = useState<Achievement[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -51,9 +53,10 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch achievements on mount
+  // Fetch data on mount
   useEffect(() => {
     fetchAchievements();
+    fetchProfile();
   }, []);
 
   // Apply filters/sorts when data or filters change
@@ -87,6 +90,22 @@ export default function Home() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch('/api/profile');
+      if (!res.ok) throw new Error('Failed to fetch profile');
+      const data = await res.json();
+      setProfile(data);
+    } catch (err) {
+      console.error('Profile fetch error:', err);
+      // Non-critical, use default
+      setProfile({
+        nickname: 'Runner',
+        theme: { primaryColor: 'oklch(0.65 0.24 45)' }
+      });
     }
   };
 
@@ -195,29 +214,41 @@ export default function Home() {
     localStorage.setItem('halloffame-view', view);
   };
 
+  // Compute stats for ProfileHero
+  const computeStats = () => {
+    const totalRaces = achievements.length;
+    const totalDistance = achievements.reduce((sum, a) => sum + a.distance, 0);
+    
+    const years = achievements
+      .map(a => new Date(a.date).getFullYear())
+      .filter((v, i, arr) => arr.indexOf(v) === i);
+    const yearsActive = years.length;
+
+    return { totalRaces, totalDistance, yearsActive };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <Trophy className="h-8 w-8 text-yellow-600" />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Hall of Fame</h1>
-              <p className="text-sm text-muted-foreground">Track your running achievements</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => router.push('/statistics')} variant="outline" size="lg">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Statistics
-            </Button>
-            <Button onClick={() => setShowForm(true)} size="lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Achievement
-            </Button>
-          </div>
+        {/* Header with action buttons */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 mb-4">
+          <Button onClick={() => router.push('/statistics')} variant="outline" size="lg">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Statistics
+          </Button>
+          <Button onClick={() => setShowForm(true)} size="lg">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Achievement
+          </Button>
         </div>
+
+        {/* Profile Hero */}
+        {profile && (
+          <ProfileHero
+            profile={profile}
+            stats={computeStats()}
+          />
+        )}
 
         {/* Error Alert */}
         {error && (

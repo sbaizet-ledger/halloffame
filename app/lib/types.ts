@@ -56,3 +56,29 @@ export interface Statistics {
   timelineMonthly: TimelineDataPoint[];
   timelineYearly: TimelineDataPoint[];
 }
+
+export interface ThemeConfig {
+  primaryColor: string;
+}
+
+export interface CustomMilestone {
+  date: string;
+  title: string;
+  description?: string;
+  icon?: string;
+}
+
+export interface UserProfile {
+  nickname: string;
+  bio?: string;
+  avatarPath?: string;
+  joinedYear?: number;
+  location?: string;
+  theme: ThemeConfig;
+  socialLinks?: {
+    strava?: string;
+    instagram?: string;
+    website?: string;
+  };
+  customMilestones?: CustomMilestone[];
+}
