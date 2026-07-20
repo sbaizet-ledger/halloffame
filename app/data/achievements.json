@@ -31,7 +31,8 @@
       "eventWebsite": "https://parismarathon.com",
       "rankingScratch": 487,
       "rankingCategory": "Senior H",
-      "rankingCategoryPosition": 89
+      "rankingCategoryPosition": 89,
+      "featured": true
     },
     {
       "id": "770e8400-e29b-41d4-a716-446655440002",
@@ -59,7 +60,8 @@
       "eventWebsite": "",
       "photoLinks": [],
       "videoLinks": [],
-      "id": "60ddd18b-8f45-4d90-b684-10d2aa6ff4b9"
+      "id": "60ddd18b-8f45-4d90-b684-10d2aa6ff4b9",
+      "featured": true
     }
   ]
 }

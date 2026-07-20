@@ -10,6 +10,8 @@ export interface Achievement {
   rankingScratch: number;
   rankingCategory: string;
   rankingCategoryPosition: number;
+  featured?: boolean;
+  badges?: string[];
 }
 
 export interface AchievementsData {

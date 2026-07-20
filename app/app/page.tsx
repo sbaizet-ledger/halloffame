@@ -9,6 +9,7 @@ import { AchievementForm } from '@/components/achievement-form';
 import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
 import { ProfileHero } from '@/components/profile-hero';
+import { FeaturedAchievements } from '@/components/featured-achievements';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -214,6 +215,23 @@ export default function Home() {
     localStorage.setItem('halloffame-view', view);
   };
 
+  const handleToggleFeatured = async (id: string, featured: boolean) => {
+    requireAuth(async (password) => {
+      const res = await fetch(`/api/achievements/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ featured, password }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to update featured status');
+      }
+
+      await fetchAchievements();
+    });
+  };
+
   // Compute stats for ProfileHero
   const computeStats = () => {
     const totalRaces = achievements.length;
@@ -248,6 +266,11 @@ export default function Home() {
             profile={profile}
             stats={computeStats()}
           />
+        )}
+
+        {/* Featured Achievements */}
+        {!loading && achievements.length > 0 && (
+          <FeaturedAchievements achievements={achievements} />
         )}
 
         {/* Error Alert */}
@@ -296,12 +319,13 @@ export default function Home() {
           <>
             {viewMode === 'card' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map(achievement => (
+                 {filtered.map(achievement => (
                   <AchievementCard
                     key={achievement.id}
                     achievement={achievement}
                     onEdit={handleEdit}
                     onDelete={handleDeleteClick}
+                    onToggleFeatured={handleToggleFeatured}
                   />
                 ))}
               </div>
@@ -310,6 +334,7 @@ export default function Home() {
                 achievements={filtered}
                 onEdit={handleEdit}
                 onDelete={handleDeleteClick}
+                onToggleFeatured={handleToggleFeatured}
               />
             )}
           </>

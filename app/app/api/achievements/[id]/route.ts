@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateAchievement, deleteAchievement, getAchievementById } from '@/lib/achievements';
+import { updateAchievement, deleteAchievement, getAchievementById, readAchievements } from '@/lib/achievements';
 import { verifyPassword } from '@/lib/auth';
 
 /**
@@ -35,6 +35,19 @@ export async function PUT(
 
     // Remove password from updates
     const { password: _, ...updates } = body;
+
+    // Check featured limit (max 3)
+    if ('featured' in updates && updates.featured === true && !existing.featured) {
+      const allAchievements = readAchievements();
+      const currentFeaturedCount = allAchievements.filter(a => a.featured && a.id !== id).length;
+      
+      if (currentFeaturedCount >= 3) {
+        return NextResponse.json(
+          { error: 'Maximum 3 featured achievements allowed. Remove one before adding another.' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Validate data types if provided
     if ('name' in updates && (typeof updates.name !== 'string' || !updates.name.trim())) {

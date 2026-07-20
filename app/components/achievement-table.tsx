@@ -12,18 +12,20 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   achievements: Achievement[];
   onEdit?: (achievement: Achievement) => void;
   onDelete?: (id: string) => void;
+  onToggleFeatured?: (id: string, featured: boolean) => void;
 }
 
 type SortField = 'name' | 'distance' | 'rankingScratch' | 'date';
 type SortDirection = 'asc' | 'desc' | null;
 
-export function AchievementTable({ achievements, onEdit, onDelete }: Props) {
+export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatured }: Props) {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
@@ -158,6 +160,20 @@ export function AchievementTable({ achievements, onEdit, onDelete }: Props) {
               <TableCell>{formatDate(achievement.date)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex gap-1 justify-end">
+                  {onToggleFeatured && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFeatured(achievement.id, !achievement.featured);
+                      }}
+                      aria-label={achievement.featured ? "Remove from featured" : "Add to featured"}
+                      title={achievement.featured ? "Remove from featured" : "Add to featured"}
+                    >
+                      <Star className={cn("h-4 w-4", achievement.featured && "fill-primary text-primary")} />
+                    </Button>
+                  )}
                   {onEdit && (
                     <Button
                       variant="ghost"

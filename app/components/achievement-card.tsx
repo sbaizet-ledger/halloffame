@@ -4,16 +4,17 @@ import { Achievement } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Calendar, MapPin, Trophy, TrendingUp, Image as ImageIcon, Video, ExternalLink, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, Trophy, TrendingUp, Image as ImageIcon, Video, ExternalLink, Pencil, Trash2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Props {
   achievement: Achievement;
   onEdit?: (achievement: Achievement) => void;
   onDelete?: (id: string) => void;
+  onToggleFeatured?: (id: string, featured: boolean) => void;
 }
 
-export function AchievementCard({ achievement, onEdit, onDelete }: Props) {
+export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeatured }: Props) {
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
@@ -46,8 +47,19 @@ export function AchievementCard({ achievement, onEdit, onDelete }: Props) {
               {achievement.distance} km
             </CardDescription>
           </div>
-          {(onEdit || onDelete) && (
+          {(onEdit || onDelete || onToggleFeatured) && (
             <div className="flex gap-1">
+              {onToggleFeatured && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onToggleFeatured(achievement.id, !achievement.featured)}
+                  aria-label={achievement.featured ? "Remove from featured" : "Add to featured"}
+                  title={achievement.featured ? "Remove from featured" : "Add to featured"}
+                >
+                  <Star className={cn("h-4 w-4", achievement.featured && "fill-primary text-primary")} />
+                </Button>
+              )}
               {onEdit && (
                 <Button
                   variant="ghost"
