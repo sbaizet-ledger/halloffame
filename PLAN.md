@@ -560,4 +560,6 @@ Project is complete when:
 | Date | Phase | Status | Notes |
 |------|-------|--------|-------|
 | 2026-07-20 | Planning | ✅ Complete | Initial plan created |
-| | | | |
+| 2026-07-20 | Phase 1 | ✅ Complete | Next.js init, shadcn/ui setup |
+| 2026-07-20 | Phase 2 | ✅ Complete | Types, lib functions (achievements, auth) |
+| 2026-07-20 | Phase 3 | ✅ Complete | API routes (GET/POST/PUT/DELETE). Fixed Next.js 16 async params |
