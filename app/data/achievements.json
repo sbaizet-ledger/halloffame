@@ -47,6 +47,19 @@
       "rankingScratch": 23,
       "rankingCategory": "Master 0 H",
       "rankingCategoryPosition": 5
+    },
+    {
+      "name": "Test",
+      "date": "2026-07-15",
+      "category": "Trail",
+      "distance": 21,
+      "rankingScratch": 23,
+      "rankingCategory": "M0H (18-29)",
+      "rankingCategoryPosition": 4,
+      "eventWebsite": "",
+      "photoLinks": [],
+      "videoLinks": [],
+      "id": "60ddd18b-8f45-4d90-b684-10d2aa6ff4b9"
     }
   ]
 }

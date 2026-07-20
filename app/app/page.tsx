@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Achievement } from '@/lib/types';
 import { AchievementCard } from '@/components/achievement-card';
 import { AchievementForm } from '@/components/achievement-form';
@@ -18,12 +19,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Trophy, Loader2 } from 'lucide-react';
+import { Plus, Trophy, Loader2, BarChart3 } from 'lucide-react';
 
 type CategoryFilter = 'all' | 'Trail' | 'Run';
 type SortOption = 'date' | 'distance';
 
 export default function Home() {
+  const router = useRouter();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filtered, setFiltered] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,10 +192,16 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">Track your running achievements</p>
             </div>
           </div>
-          <Button onClick={() => setShowForm(true)} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Achievement
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => router.push('/statistics')} variant="outline" size="lg">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Statistics
+            </Button>
+            <Button onClick={() => setShowForm(true)} size="lg">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Achievement
+            </Button>
+          </div>
         </div>
 
         {/* Error Alert */}
