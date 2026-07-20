@@ -8,6 +8,16 @@ import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Trophy, Loader2 } from 'lucide-react';
 
 type CategoryFilter = 'all' | 'Trail' | 'Run';
@@ -21,7 +31,9 @@ export default function Home() {
   
   const [showForm, setShowForm] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<((password: string) => Promise<void>) | null>(null);
   
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -122,9 +134,16 @@ export default function Home() {
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDeleteClick = (id: string) => {
+    setDeletingId(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deletingId) return;
+    
     requireAuth(async (password) => {
-      const res = await fetch(`/api/achievements/${id}`, {
+      const res = await fetch(`/api/achievements/${deletingId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -136,6 +155,8 @@ export default function Home() {
       }
 
       await fetchAchievements();
+      setShowDeleteConfirm(false);
+      setDeletingId(null);
     });
   };
 
@@ -222,7 +243,7 @@ export default function Home() {
                 key={achievement.id}
                 achievement={achievement}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick}
               />
             ))}
           </div>
@@ -253,6 +274,21 @@ export default function Home() {
           }}
           onSubmit={handleAuthSubmit}
         />
+
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete this achievement.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeletingId(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

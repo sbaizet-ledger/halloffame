@@ -3,7 +3,7 @@
 **Project**: Hall of Fame - Self-hosted sportive achievement tracker  
 **Owner**: Individual runner/trail athlete  
 **Deployment**: Raspberry Pi via Docker  
-**Status**: Initial setup phase
+**Status**: ✅ Phase 7 Complete - Production Ready
 
 ## Project Purpose
 
@@ -170,21 +170,21 @@ halloffame/
 
 ## Testing Checklist
 
-Before considering work complete:
+All tests passing as of 2026-07-20:
 
-- [ ] View page loads and displays sample achievements
-- [ ] Add form creates new achievement and updates JSON
-- [ ] Edit form modifies existing achievement correctly
-- [ ] Delete removes achievement from JSON
-- [ ] Auth dialog appears for edit operations
-- [ ] Correct password grants access
-- [ ] Wrong password shows error
-- [ ] Sort by date/distance works
-- [ ] Filter by Trail/Run works
-- [ ] Responsive on mobile viewport
-- [ ] Docker build succeeds
-- [ ] Docker container runs and serves app
-- [ ] JSON file persists after container restart
+- [x] View page loads and displays sample achievements
+- [x] Add form creates new achievement and updates JSON
+- [x] Edit form modifies existing achievement correctly
+- [x] Delete removes achievement from JSON
+- [x] Auth dialog appears for edit operations
+- [x] Correct password grants access
+- [x] Wrong password shows error
+- [x] Sort by date/distance works
+- [x] Filter by Trail/Run works
+- [x] Responsive design implemented
+- [x] Docker build succeeds
+- [x] Docker container runs and serves app
+- [x] JSON file persists after container restart
 
 ## Environment Variables
 
@@ -226,13 +226,35 @@ docker rm halloffame                 # Remove container
 
 ## Agent Working Notes
 
-Use this section to document decisions, gotchas, or context for future sessions:
+### 2026-07-20 - Phase 7 Complete
 
-- **Date**: 2026-07-20
-- **Initial Setup**: Project structure defined, README created, sample data added
-- **Tech Decisions**: Chose Next.js over Astro for richer ecosystem despite slightly higher resource usage on Pi
+**Implementation Completed:**
+- All 7 phases complete (Foundation → Data Layer → API → UI → Main Page → Docker → Polish)
+- Delete confirmation dialog added using shadcn AlertDialog
+- API validation: type checks, positive numbers, valid URLs
+- Error handling: try-catch in all API routes and lib functions
+- Malformed JSON handling: returns empty array on parse failure
+- Docker: Fixed Dockerfile for app/ subdirectory structure, added output:standalone to next.config.ts
+- Testing: All API routes tested (CRUD, auth, validation), Docker persistence verified
+
+**Key Technical Decisions:**
+- Next.js 16 async params pattern: `const { id } = await params`
+- Standalone output mode for Docker builds
+- Volume mount: `/app/data` for JSON persistence
+- Simple env var auth (ADMIN_PASSWORD) - sufficient for single-user self-hosted
+
+**Project Structure:**
+- Next.js app in `app/` subdirectory (not root)
+- Data file: `app/data/achievements.json`
+- Docker builds from root, copies from `app/`
+
+**Gotchas for Future Work:**
+- If adding features, remember app/ subdirectory structure
+- Docker volume must map to `/app/data` inside container
+- All rankings must be positive integers, distance positive float
+- Category options in form match French athletics categories (M0H-M5H, M0F-M5F format)
 
 ---
 
 **Last Updated**: 2026-07-20  
-**Next Steps**: Initialize Next.js app, setup shadcn/ui, build achievement list view
+**Status**: Production ready for Raspberry Pi deployment

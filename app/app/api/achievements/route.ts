@@ -51,6 +51,49 @@ export async function POST(request: Request) {
       }
     }
 
+    // Validate data types
+    if (typeof achievementData.name !== 'string' || !achievementData.name.trim()) {
+      return NextResponse.json({ error: 'Name must be a non-empty string' }, { status: 400 });
+    }
+    if (typeof achievementData.category !== 'string' || !['Trail', 'Run'].includes(achievementData.category)) {
+      return NextResponse.json({ error: 'Category must be "Trail" or "Run"' }, { status: 400 });
+    }
+    if (typeof achievementData.distance !== 'number' || achievementData.distance <= 0) {
+      return NextResponse.json({ error: 'Distance must be a positive number' }, { status: 400 });
+    }
+    if (typeof achievementData.rankingScratch !== 'number' || achievementData.rankingScratch <= 0) {
+      return NextResponse.json({ error: 'Scratch ranking must be a positive number' }, { status: 400 });
+    }
+    if (typeof achievementData.rankingCategoryPosition !== 'number' || achievementData.rankingCategoryPosition <= 0) {
+      return NextResponse.json({ error: 'Category ranking must be a positive number' }, { status: 400 });
+    }
+
+    // Validate URLs if provided
+    const urlPattern = /^https?:\/\/.+/;
+    if (achievementData.eventWebsite && !urlPattern.test(achievementData.eventWebsite)) {
+      return NextResponse.json({ error: 'Event website must be a valid URL' }, { status: 400 });
+    }
+    if (achievementData.photoLinks) {
+      if (!Array.isArray(achievementData.photoLinks)) {
+        return NextResponse.json({ error: 'Photo links must be an array' }, { status: 400 });
+      }
+      for (const link of achievementData.photoLinks) {
+        if (link && !urlPattern.test(link)) {
+          return NextResponse.json({ error: 'All photo links must be valid URLs' }, { status: 400 });
+        }
+      }
+    }
+    if (achievementData.videoLinks) {
+      if (!Array.isArray(achievementData.videoLinks)) {
+        return NextResponse.json({ error: 'Video links must be an array' }, { status: 400 });
+      }
+      for (const link of achievementData.videoLinks) {
+        if (link && !urlPattern.test(link)) {
+          return NextResponse.json({ error: 'All video links must be valid URLs' }, { status: 400 });
+        }
+      }
+    }
+
     // Create achievement
     const newAchievement = createAchievement(achievementData as Omit<Achievement, 'id'>);
     

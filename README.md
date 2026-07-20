@@ -42,10 +42,13 @@ Self-hosted achievement tracker for runners and trail athletes. Keep your person
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/halloffame.git
-cd halloffame
+cd halloffame/app
 
 # Install dependencies
 npm install
+
+# Set up environment
+echo "ADMIN_PASSWORD=changeme123" > .env.local
 
 # Run development server
 npm run dev
@@ -56,13 +59,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### Docker Deployment (Raspberry Pi)
 
 ```bash
-# Build the Docker image
+# Build the Docker image (from project root)
+cd halloffame
 docker build -t halloffame:latest .
 
 # Run the container
 docker run -d \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
+  -e ADMIN_PASSWORD=your-secure-password \
+  --restart unless-stopped \
   --name halloffame \
   halloffame:latest
 ```
@@ -145,27 +151,42 @@ Available age/gender categories:
 
 ```
 halloffame/
-├── app/                  # Next.js app directory
-│   ├── api/             # API routes for CRUD operations
-│   ├── components/      # React components
-│   └── page.tsx         # Homepage
-├── data/                # JSON data storage
-│   └── achievements.json
-├── public/              # Static assets
-├── Dockerfile           # Docker configuration
-├── package.json
+├── app/                     # Next.js application
+│   ├── app/                # App router pages
+│   │   ├── api/           # API routes for CRUD operations
+│   │   │   └── achievements/
+│   │   └── page.tsx       # Homepage
+│   ├── components/        # React components
+│   │   ├── achievement-card.tsx
+│   │   ├── achievement-form.tsx
+│   │   ├── auth-dialog.tsx
+│   │   └── filter-toolbar.tsx
+│   ├── lib/              # Business logic
+│   │   ├── achievements.ts
+│   │   ├── auth.ts
+│   │   └── types.ts
+│   ├── data/             # JSON data storage
+│   │   └── achievements.json
+│   └── package.json
+├── Dockerfile            # Docker configuration
+├── PLAN.md              # Build plan
 └── README.md
 ```
 
-## Development Roadmap
+## Development Status
 
-- [ ] Core achievement CRUD functionality
-- [ ] Authentication for edit operations
-- [ ] Sort and filter UI
-- [ ] Docker deployment setup
-- [ ] Photo upload capability (optional future enhancement)
-- [ ] Export to PDF/CSV (optional future enhancement)
-- [ ] Statistics dashboard (optional future enhancement)
+- [x] Core achievement CRUD functionality
+- [x] Authentication for edit operations
+- [x] Sort and filter UI
+- [x] Docker deployment setup
+- [x] Data validation
+- [x] Error handling
+- [x] Responsive design
+
+**Future Enhancements:**
+- [ ] Photo upload capability (store locally instead of links)
+- [ ] Export to PDF/CSV
+- [ ] Statistics dashboard (total distance, race count, averages)
 
 ## License
 

@@ -1,0 +1,17 @@
+{
+  "achievements": [
+    {
+      "name": "Docker Test Race",
+      "date": "2026-01-20",
+      "category": "Trail",
+      "distance": 25,
+      "rankingScratch": 10,
+      "rankingCategory": "M1H (30-39)",
+      "rankingCategoryPosition": 3,
+      "eventWebsite": "https://example.com",
+      "photoLinks": [],
+      "videoLinks": [],
+      "id": "ea34a4ef-df6c-42eb-8c8c-9aa9e29c359e"
+    }
+  ]
+}
