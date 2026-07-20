@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BadgeIcon } from '@/components/badge-icon';
 
 interface Props {
   achievements: Achievement[];
@@ -108,6 +109,7 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
               </div>
             </TableHead>
             <TableHead>Type</TableHead>
+            <TableHead>Badges</TableHead>
             <TableHead 
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort('distance')}
@@ -151,6 +153,13 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
                 <Badge variant={achievement.category === 'Trail' ? 'default' : 'secondary'}>
                   {achievement.category}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 flex-wrap">
+                  {achievement.badges?.map((badgeId) => (
+                    <BadgeIcon key={badgeId} badgeId={badgeId} />
+                  ))}
+                </div>
               </TableCell>
               <TableCell>{achievement.distance} km</TableCell>
               <TableCell>#{achievement.rankingScratch}</TableCell>

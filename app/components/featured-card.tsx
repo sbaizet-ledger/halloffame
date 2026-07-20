@@ -1,6 +1,7 @@
 import { Achievement } from '@/lib/types';
 import { Calendar, MapPin, Award, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { BadgeIcon } from '@/components/badge-icon';
 
 interface FeaturedCardProps {
   achievement: Achievement;
@@ -45,6 +46,13 @@ export function FeaturedCard({ achievement }: FeaturedCardProps) {
           <h3 className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors">
             {achievement.name}
           </h3>
+          {achievement.badges && achievement.badges.length > 0 && (
+            <div className="flex items-center gap-1 mt-2 flex-wrap">
+              {achievement.badges.map((badgeId) => (
+                <BadgeIcon key={badgeId} badgeId={badgeId} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Stats grid */}

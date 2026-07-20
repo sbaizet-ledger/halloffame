@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Achievement, AchievementsData } from './types';
+import { assignBadges } from './badges';
 
 const DATA_PATH = path.join(process.cwd(), 'data', 'achievements.json');
 
@@ -67,6 +68,9 @@ export function createAchievement(achievement: Omit<Achievement, 'id'>): Achieve
     id: crypto.randomUUID(),
   };
 
+  // Auto-assign badges
+  newAchievement.badges = assignBadges(newAchievement, [...achievements, newAchievement]);
+
   achievements.push(newAchievement);
   writeAchievements(achievements);
 
@@ -89,6 +93,9 @@ export function updateAchievement(id: string, updates: Partial<Achievement>): Ac
     ...updates,
     id, // Ensure ID doesn't change
   };
+
+  // Re-assign badges after update
+  achievements[index].badges = assignBadges(achievements[index], achievements);
 
   writeAchievements(achievements);
   return achievements[index];

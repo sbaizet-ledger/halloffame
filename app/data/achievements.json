@@ -16,7 +16,10 @@
       "eventWebsite": "https://utmb.world",
       "rankingScratch": 156,
       "rankingCategory": "Master 1 H",
-      "rankingCategoryPosition": 12
+      "rankingCategoryPosition": 12,
+      "badges": [
+        "marathon"
+      ]
     },
     {
       "id": "660e8400-e29b-41d4-a716-446655440001",
@@ -32,7 +35,8 @@
       "rankingScratch": 487,
       "rankingCategory": "Senior H",
       "rankingCategoryPosition": 89,
-      "featured": true
+      "featured": true,
+      "badges": []
     },
     {
       "id": "770e8400-e29b-41d4-a716-446655440002",
@@ -47,7 +51,8 @@
       "eventWebsite": "https://traildescretes.fr",
       "rankingScratch": 23,
       "rankingCategory": "Master 0 H",
-      "rankingCategoryPosition": 5
+      "rankingCategoryPosition": 5,
+      "badges": []
     },
     {
       "name": "Test",
@@ -61,7 +66,8 @@
       "photoLinks": [],
       "videoLinks": [],
       "id": "60ddd18b-8f45-4d90-b684-10d2aa6ff4b9",
-      "featured": true
+      "featured": false,
+      "badges": []
     }
   ]
 }

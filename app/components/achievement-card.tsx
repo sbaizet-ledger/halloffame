@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Calendar, MapPin, Trophy, TrendingUp, Image as ImageIcon, Video, ExternalLink, Pencil, Trash2, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BadgeIcon } from '@/components/badge-icon';
 
 interface Props {
   achievement: Achievement;
@@ -41,6 +42,13 @@ export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeature
                 {formatDate(achievement.date)}
               </span>
             </div>
+            {achievement.badges && achievement.badges.length > 0 && (
+              <div className="flex items-center gap-1 mb-2 flex-wrap">
+                {achievement.badges.map((badgeId) => (
+                  <BadgeIcon key={badgeId} badgeId={badgeId} />
+                ))}
+              </div>
+            )}
             <CardTitle className="text-xl">{achievement.name}</CardTitle>
             <CardDescription className="flex items-center gap-1 mt-1">
               <MapPin className="h-3 w-3" />

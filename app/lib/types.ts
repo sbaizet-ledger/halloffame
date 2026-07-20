@@ -84,3 +84,21 @@ export interface UserProfile {
   };
   customMilestones?: CustomMilestone[];
 }
+
+export type BadgeCriteria =
+  | { type: "distance"; value: number }
+  | { type: "ranking"; position: number }
+  | { type: "count"; value: number }
+  | { type: "manual" };
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  criteria: BadgeCriteria;
+}
+
+export interface BadgesData {
+  badges: Badge[];
+}

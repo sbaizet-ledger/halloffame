@@ -1,0 +1,53 @@
+{
+  "badges": [
+    {
+      "id": "first-race",
+      "name": "First Steps",
+      "description": "Completed first race",
+      "icon": "🎯",
+      "criteria": { "type": "manual" }
+    },
+    {
+      "id": "marathon",
+      "name": "Marathoner",
+      "description": "Completed 42.195 km",
+      "icon": "🏃",
+      "criteria": { "type": "distance", "value": 42.195 }
+    },
+    {
+      "id": "ultra",
+      "name": "Ultra Runner",
+      "description": "Completed 50+ km",
+      "icon": "⚡",
+      "criteria": { "type": "distance", "value": 50 }
+    },
+    {
+      "id": "podium",
+      "name": "Podium Finish",
+      "description": "Top 3 overall",
+      "icon": "🥇",
+      "criteria": { "type": "ranking", "position": 3 }
+    },
+    {
+      "id": "top-10",
+      "name": "Elite Performance",
+      "description": "Top 10 finish",
+      "icon": "⭐",
+      "criteria": { "type": "ranking", "position": 10 }
+    },
+    {
+      "id": "century",
+      "name": "Century Club",
+      "description": "100+ km race",
+      "icon": "💯",
+      "criteria": { "type": "distance", "value": 100 }
+    },
+    {
+      "id": "streak-10",
+      "name": "Consistent Racer",
+      "description": "10+ races completed",
+      "icon": "🔥",
+      "criteria": { "type": "count", "value": 10 }
+    }
+  ]
+}
