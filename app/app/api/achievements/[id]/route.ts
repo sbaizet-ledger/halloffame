@@ -10,9 +10,10 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  
   try {
     const body = await request.json();
-    const { id } = await params;
 
     // Check auth
     const password = body.password;
@@ -47,7 +48,7 @@ export async function PUT(
 
     return NextResponse.json({ achievement: updated });
   } catch (error) {
-    console.error(`PUT /api/achievements/${params.id} error:`, error);
+    console.error(`PUT /api/achievements/${id} error:`, error);
     return NextResponse.json(
       { error: 'Failed to update achievement' },
       { status: 500 }
@@ -63,9 +64,10 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  
   try {
     const body = await request.json();
-    const { id } = await params;
 
     // Check auth
     const password = body.password;
@@ -88,7 +90,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`DELETE /api/achievements/${params.id} error:`, error);
+    console.error(`DELETE /api/achievements/${id} error:`, error);
     return NextResponse.json(
       { error: 'Failed to delete achievement' },
       { status: 500 }
