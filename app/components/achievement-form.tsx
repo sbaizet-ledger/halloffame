@@ -53,6 +53,10 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
     date: '',
     category: 'Trail' as 'Trail' | 'Run',
     distance: '',
+    denivelePositive: '',
+    deniveleNegative: '',
+    totalParticipants: '',
+    categoryParticipants: '',
     rankingScratch: '',
     rankingCategory: '',
     rankingCategoryPosition: '',
@@ -70,9 +74,13 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
         date: achievement.date,
         category: achievement.category,
         distance: String(achievement.distance),
-        rankingScratch: String(achievement.rankingScratch),
-        rankingCategory: achievement.rankingCategory,
-        rankingCategoryPosition: String(achievement.rankingCategoryPosition),
+        denivelePositive: achievement.denivelePositive ? String(achievement.denivelePositive) : '',
+        deniveleNegative: achievement.deniveleNegative ? String(achievement.deniveleNegative) : '',
+        totalParticipants: achievement.totalParticipants ? String(achievement.totalParticipants) : '',
+        categoryParticipants: achievement.categoryParticipants ? String(achievement.categoryParticipants) : '',
+        rankingScratch: achievement.rankingScratch ? String(achievement.rankingScratch) : '',
+        rankingCategory: achievement.rankingCategory || '',
+        rankingCategoryPosition: achievement.rankingCategoryPosition ? String(achievement.rankingCategoryPosition) : '',
         eventWebsite: achievement.eventWebsite,
       });
       setPhotoLinks(achievement.photoLinks.length > 0 ? achievement.photoLinks : ['']);
@@ -88,6 +96,10 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       date: '',
       category: 'Trail',
       distance: '',
+      denivelePositive: '',
+      deniveleNegative: '',
+      totalParticipants: '',
+      categoryParticipants: '',
       rankingScratch: '',
       rankingCategory: '',
       rankingCategoryPosition: '',
@@ -106,11 +118,34 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
     if (!formData.distance || parseFloat(formData.distance) <= 0) {
       newErrors.distance = 'Distance must be greater than 0';
     }
-    if (!formData.rankingScratch || parseInt(formData.rankingScratch) <= 0) {
+
+    // Optional denivele validation
+    if (formData.denivelePositive && parseFloat(formData.denivelePositive) < 0) {
+      newErrors.denivelePositive = 'Must be 0 or positive';
+    }
+    if (formData.deniveleNegative && parseFloat(formData.deniveleNegative) < 0) {
+      newErrors.deniveleNegative = 'Must be 0 or positive';
+    }
+
+    // Optional participant validation
+    if (formData.totalParticipants && parseInt(formData.totalParticipants) < 1) {
+      newErrors.totalParticipants = 'Must be at least 1';
+    }
+    if (formData.categoryParticipants) {
+      const catPart = parseInt(formData.categoryParticipants);
+      if (catPart < 1) {
+        newErrors.categoryParticipants = 'Must be at least 1';
+      }
+      if (formData.totalParticipants && catPart > parseInt(formData.totalParticipants)) {
+        newErrors.categoryParticipants = 'Cannot exceed total participants';
+      }
+    }
+
+    // Optional ranking validation
+    if (formData.rankingScratch && parseInt(formData.rankingScratch) <= 0) {
       newErrors.rankingScratch = 'Ranking must be greater than 0';
     }
-    if (!formData.rankingCategory) newErrors.rankingCategory = 'Category is required';
-    if (!formData.rankingCategoryPosition || parseInt(formData.rankingCategoryPosition) <= 0) {
+    if (formData.rankingCategoryPosition && parseInt(formData.rankingCategoryPosition) <= 0) {
       newErrors.rankingCategoryPosition = 'Category position must be greater than 0';
     }
 
@@ -145,9 +180,13 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       date: formData.date,
       category: formData.category,
       distance: parseFloat(formData.distance),
-      rankingScratch: parseInt(formData.rankingScratch),
-      rankingCategory: formData.rankingCategory,
-      rankingCategoryPosition: parseInt(formData.rankingCategoryPosition),
+      ...(formData.denivelePositive && { denivelePositive: parseFloat(formData.denivelePositive) }),
+      ...(formData.deniveleNegative && { deniveleNegative: parseFloat(formData.deniveleNegative) }),
+      ...(formData.totalParticipants && { totalParticipants: parseInt(formData.totalParticipants) }),
+      ...(formData.categoryParticipants && { categoryParticipants: parseInt(formData.categoryParticipants) }),
+      ...(formData.rankingScratch && { rankingScratch: parseInt(formData.rankingScratch) }),
+      ...(formData.rankingCategory && { rankingCategory: formData.rankingCategory }),
+      ...(formData.rankingCategoryPosition && { rankingCategoryPosition: parseInt(formData.rankingCategoryPosition) }),
       eventWebsite: formData.eventWebsite.trim(),
       photoLinks: photoLinks.filter(link => link.trim().length > 0),
       videoLinks: videoLinks.filter(link => link.trim().length > 0),
@@ -258,10 +297,68 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
               {errors.distance && <p className="text-sm text-destructive">{errors.distance}</p>}
             </div>
 
+            {/* Denivele */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="denivelePositive">Denivele + (m)</Label>
+                <Input
+                  id="denivelePositive"
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={formData.denivelePositive}
+                  onChange={(e) => setFormData({ ...formData, denivelePositive: e.target.value })}
+                  placeholder="1500"
+                />
+                {errors.denivelePositive && <p className="text-sm text-destructive">{errors.denivelePositive}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deniveleNegative">Denivele - (m)</Label>
+                <Input
+                  id="deniveleNegative"
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={formData.deniveleNegative}
+                  onChange={(e) => setFormData({ ...formData, deniveleNegative: e.target.value })}
+                  placeholder="1500"
+                />
+                {errors.deniveleNegative && <p className="text-sm text-destructive">{errors.deniveleNegative}</p>}
+              </div>
+            </div>
+
+            {/* Participants */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="totalParticipants">Total Participants</Label>
+                <Input
+                  id="totalParticipants"
+                  type="number"
+                  min="1"
+                  value={formData.totalParticipants}
+                  onChange={(e) => setFormData({ ...formData, totalParticipants: e.target.value })}
+                  placeholder="500"
+                />
+                {errors.totalParticipants && <p className="text-sm text-destructive">{errors.totalParticipants}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="categoryParticipants">Category Participants</Label>
+                <Input
+                  id="categoryParticipants"
+                  type="number"
+                  min="1"
+                  value={formData.categoryParticipants}
+                  onChange={(e) => setFormData({ ...formData, categoryParticipants: e.target.value })}
+                  placeholder="75"
+                />
+                {errors.categoryParticipants && <p className="text-sm text-destructive">{errors.categoryParticipants}</p>}
+              </div>
+            </div>
+
             {/* Rankings */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="rankingScratch">Scratch Rank *</Label>
+                <Label htmlFor="rankingScratch">Scratch Rank</Label>
                 <Input
                   id="rankingScratch"
                   type="number"
@@ -273,7 +370,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
                 {errors.rankingScratch && <p className="text-sm text-destructive">{errors.rankingScratch}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rankingCategory">Age Category *</Label>
+                <Label htmlFor="rankingCategory">Age Category</Label>
                 <Select
                   value={formData.rankingCategory}
                   onValueChange={(value) => setFormData({ ...formData, rankingCategory: value || '' })}
@@ -290,7 +387,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
                 {errors.rankingCategory && <p className="text-sm text-destructive">{errors.rankingCategory}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="rankingCategoryPosition">Category Rank *</Label>
+                <Label htmlFor="rankingCategoryPosition">Category Rank</Label>
                 <Input
                   id="rankingCategoryPosition"
                   type="number"

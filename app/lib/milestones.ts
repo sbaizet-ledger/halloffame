@@ -68,10 +68,10 @@ export function computeMilestones(
   }
 
   // Best overall ranking
-  const rankedAchievements = achievements.filter(a => a.rankingScratch > 0);
+  const rankedAchievements = achievements.filter(a => a.rankingScratch != null && a.rankingScratch > 0);
   if (rankedAchievements.length > 0) {
     const bestRank = rankedAchievements.sort((a, b) => 
-      a.rankingScratch - b.rankingScratch
+      (a.rankingScratch || Infinity) - (b.rankingScratch || Infinity)
     )[0];
     milestones.push({
       date: bestRank.date,

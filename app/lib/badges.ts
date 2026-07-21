@@ -42,6 +42,7 @@ function meetsCriteria(
 
     case "ranking":
       return (
+        achievement.rankingScratch != null &&
         achievement.rankingScratch > 0 &&
         achievement.rankingScratch <= criteria.position
       );

@@ -78,6 +78,11 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
         bVal = new Date(b.date).getTime();
       }
 
+      // Handle null/undefined values in sorting - put them at end
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
       if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
       return 0;
@@ -164,9 +169,11 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
                 </div>
               </TableCell>
               <TableCell>{achievement.distance} km</TableCell>
-              <TableCell>#{achievement.rankingScratch}</TableCell>
+              <TableCell>{achievement.rankingScratch ? `#${achievement.rankingScratch}` : '-'}</TableCell>
               <TableCell>
-                {achievement.rankingCategory} - #{achievement.rankingCategoryPosition}
+                {achievement.rankingCategory && achievement.rankingCategoryPosition 
+                  ? `${achievement.rankingCategory} - #${achievement.rankingCategoryPosition}`
+                  : '-'}
               </TableCell>
               <TableCell>{formatDate(achievement.date)}</TableCell>
               {(onEdit || onDelete || onToggleFeatured) && (

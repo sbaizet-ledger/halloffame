@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const achievementData = await request.json();
 
     // Validate required fields
-    const required = ['date', 'category', 'distance', 'name', 'rankingScratch', 'rankingCategory', 'rankingCategoryPosition'];
+    const required = ['date', 'category', 'distance', 'name'];
     for (const field of required) {
       if (!(field in achievementData)) {
         return NextResponse.json(
@@ -48,10 +48,29 @@ export async function POST(request: Request) {
     if (typeof achievementData.distance !== 'number' || achievementData.distance <= 0) {
       return NextResponse.json({ error: 'Distance must be a positive number' }, { status: 400 });
     }
-    if (typeof achievementData.rankingScratch !== 'number' || achievementData.rankingScratch <= 0) {
+
+    // Validate optional fields
+    if ('denivelePositive' in achievementData && (typeof achievementData.denivelePositive !== 'number' || achievementData.denivelePositive < 0)) {
+      return NextResponse.json({ error: 'Denivele+ must be a non-negative number' }, { status: 400 });
+    }
+    if ('deniveleNegative' in achievementData && (typeof achievementData.deniveleNegative !== 'number' || achievementData.deniveleNegative < 0)) {
+      return NextResponse.json({ error: 'Denivele- must be a non-negative number' }, { status: 400 });
+    }
+    if ('totalParticipants' in achievementData && (typeof achievementData.totalParticipants !== 'number' || achievementData.totalParticipants < 1)) {
+      return NextResponse.json({ error: 'Total participants must be at least 1' }, { status: 400 });
+    }
+    if ('categoryParticipants' in achievementData) {
+      if (typeof achievementData.categoryParticipants !== 'number' || achievementData.categoryParticipants < 1) {
+        return NextResponse.json({ error: 'Category participants must be at least 1' }, { status: 400 });
+      }
+      if ('totalParticipants' in achievementData && achievementData.categoryParticipants > achievementData.totalParticipants) {
+        return NextResponse.json({ error: 'Category participants cannot exceed total participants' }, { status: 400 });
+      }
+    }
+    if ('rankingScratch' in achievementData && (typeof achievementData.rankingScratch !== 'number' || achievementData.rankingScratch <= 0)) {
       return NextResponse.json({ error: 'Scratch ranking must be a positive number' }, { status: 400 });
     }
-    if (typeof achievementData.rankingCategoryPosition !== 'number' || achievementData.rankingCategoryPosition <= 0) {
+    if ('rankingCategoryPosition' in achievementData && (typeof achievementData.rankingCategoryPosition !== 'number' || achievementData.rankingCategoryPosition <= 0)) {
       return NextResponse.json({ error: 'Category ranking must be a positive number' }, { status: 400 });
     }
 

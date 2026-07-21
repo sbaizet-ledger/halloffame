@@ -94,22 +94,28 @@ export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeature
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Rankings */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-2 text-sm">
-            <Trophy className="h-4 w-4 text-yellow-600" />
-            <div>
-              <div className="font-medium">Scratch</div>
-              <div className="text-muted-foreground">#{achievement.rankingScratch}</div>
-            </div>
+        {(achievement.rankingScratch || achievement.rankingCategoryPosition) && (
+          <div className="grid grid-cols-2 gap-3">
+            {achievement.rankingScratch && (
+              <div className="flex items-center gap-2 text-sm">
+                <Trophy className="h-4 w-4 text-yellow-600" />
+                <div>
+                  <div className="font-medium">Scratch</div>
+                  <div className="text-muted-foreground">#{achievement.rankingScratch}</div>
+                </div>
+              </div>
+            )}
+            {achievement.rankingCategoryPosition && achievement.rankingCategory && (
+              <div className="flex items-center gap-2 text-sm">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
+                <div>
+                  <div className="font-medium">{achievement.rankingCategory}</div>
+                  <div className="text-muted-foreground">#{achievement.rankingCategoryPosition}</div>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <TrendingUp className="h-4 w-4 text-blue-600" />
-            <div>
-              <div className="font-medium">{achievement.rankingCategory}</div>
-              <div className="text-muted-foreground">#{achievement.rankingCategoryPosition}</div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Links */}
         <div className="flex flex-wrap gap-2">

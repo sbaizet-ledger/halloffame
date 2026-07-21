@@ -3,13 +3,17 @@ export interface Achievement {
   date: string;
   category: "Trail" | "Run";
   distance: number;
+  denivelePositive?: number;
+  deniveleNegative?: number;
+  totalParticipants?: number;
+  categoryParticipants?: number;
   name: string;
   photoLinks: string[];
   videoLinks: string[];
   eventWebsite: string;
-  rankingScratch: number;
-  rankingCategory: string;
-  rankingCategoryPosition: number;
+  rankingScratch?: number;
+  rankingCategory?: string;
+  rankingCategoryPosition?: number;
   featured?: boolean;
   badges?: string[];
 }

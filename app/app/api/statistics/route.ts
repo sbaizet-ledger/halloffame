@@ -44,32 +44,43 @@ export async function GET() {
       totalRunDistance: runAchievements.reduce((sum, a) => sum + a.distance, 0),
     };
 
-    // Rankings calculations
-    const avgScratch = achievements.reduce((sum, a) => sum + a.rankingScratch, 0) / achievements.length;
-    const avgCategoryPosition = achievements.reduce((sum, a) => sum + a.rankingCategoryPosition, 0) / achievements.length;
+    // Rankings calculations (only for achievements with ranking data)
+    const rankedAchievements = achievements.filter(a => a.rankingScratch != null && a.rankingCategoryPosition != null);
+    
+    const rankings = rankedAchievements.length > 0
+      ? (() => {
+          const avgScratch = rankedAchievements.reduce((sum, a) => sum + (a.rankingScratch || 0), 0) / rankedAchievements.length;
+          const avgCategoryPosition = rankedAchievements.reduce((sum, a) => sum + (a.rankingCategoryPosition || 0), 0) / rankedAchievements.length;
 
-    const bestScratchAchievement = achievements.reduce((best, current) =>
-      current.rankingScratch < best.rankingScratch ? current : best
-    );
+          const bestScratchAchievement = rankedAchievements.reduce((best, current) =>
+            (current.rankingScratch || Infinity) < (best.rankingScratch || Infinity) ? current : best
+          );
 
-    const bestCategoryAchievement = achievements.reduce((best, current) =>
-      current.rankingCategoryPosition < best.rankingCategoryPosition ? current : best
-    );
+          const bestCategoryAchievement = rankedAchievements.reduce((best, current) =>
+            (current.rankingCategoryPosition || Infinity) < (best.rankingCategoryPosition || Infinity) ? current : best
+          );
 
-    const rankings = {
-      avgScratch: Math.round(avgScratch * 10) / 10,
-      avgCategoryPosition: Math.round(avgCategoryPosition * 10) / 10,
-      bestScratch: {
-        position: bestScratchAchievement.rankingScratch,
-        raceName: bestScratchAchievement.name,
-        date: bestScratchAchievement.date,
-      },
-      bestCategoryPosition: {
-        position: bestCategoryAchievement.rankingCategoryPosition,
-        raceName: bestCategoryAchievement.name,
-        date: bestCategoryAchievement.date,
-      },
-    };
+          return {
+            avgScratch: Math.round(avgScratch * 10) / 10,
+            avgCategoryPosition: Math.round(avgCategoryPosition * 10) / 10,
+            bestScratch: {
+              position: bestScratchAchievement.rankingScratch!,
+              raceName: bestScratchAchievement.name,
+              date: bestScratchAchievement.date,
+            },
+            bestCategoryPosition: {
+              position: bestCategoryAchievement.rankingCategoryPosition!,
+              raceName: bestCategoryAchievement.name,
+              date: bestCategoryAchievement.date,
+            },
+          };
+        })()
+      : {
+          avgScratch: 0,
+          avgCategoryPosition: 0,
+          bestScratch: null,
+          bestCategoryPosition: null,
+        };
 
     // Records calculations
     const longestTrail = trailAchievements.length > 0

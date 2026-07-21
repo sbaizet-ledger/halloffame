@@ -65,15 +65,17 @@ export function FeaturedCard({ achievement }: FeaturedCardProps) {
             <p className="text-2xl font-bold">{achievement.distance}km</p>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <TrendingUp className="h-4 w-4" />
-              <span>Rank</span>
+          {achievement.rankingScratch && (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <TrendingUp className="h-4 w-4" />
+                <span>Rank</span>
+              </div>
+              <p className="text-2xl font-bold">
+                #{achievement.rankingScratch}
+              </p>
             </div>
-            <p className="text-2xl font-bold">
-              #{achievement.rankingScratch}
-            </p>
-          </div>
+          )}
         </div>
 
         {/* Date */}
@@ -83,7 +85,7 @@ export function FeaturedCard({ achievement }: FeaturedCardProps) {
         </div>
 
         {/* Category position if available */}
-        {achievement.rankingCategory && achievement.rankingCategoryPosition > 0 && (
+        {achievement.rankingCategory && achievement.rankingCategoryPosition != null && achievement.rankingCategoryPosition > 0 && (
           <div className="text-xs text-muted-foreground">
             {achievement.rankingCategory}: #{achievement.rankingCategoryPosition}
           </div>
