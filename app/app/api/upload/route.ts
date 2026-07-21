@@ -1,19 +1,9 @@
 import { NextResponse } from 'next/server';
 import { saveAvatar } from '@/lib/upload';
-import { verifyPassword } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    
-    // Verify password
-    const password = formData.get('password') as string;
-    if (!password || !verifyPassword(password)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Get file
     const file = formData.get('file') as File;

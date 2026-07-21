@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { updateAchievement, deleteAchievement, getAchievementById, readAchievements } from '@/lib/achievements';
-import { verifyPassword } from '@/lib/auth';
 
 /**
  * PUT /api/achievements/[id]
@@ -13,16 +12,7 @@ export async function PUT(
   const { id } = await params;
   
   try {
-    const body = await request.json();
-
-    // Check auth
-    const password = body.password;
-    if (!password || !verifyPassword(password)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const updates = await request.json();
 
     // Check achievement exists
     const existing = getAchievementById(id);
@@ -32,9 +22,6 @@ export async function PUT(
         { status: 404 }
       );
     }
-
-    // Remove password from updates
-    const { password: _, ...updates } = body;
 
     // Check featured limit (max 3)
     if ('featured' in updates && updates.featured === true && !existing.featured) {
@@ -123,17 +110,6 @@ export async function DELETE(
   const { id } = await params;
   
   try {
-    const body = await request.json();
-
-    // Check auth
-    const password = body.password;
-    if (!password || !verifyPassword(password)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     // Delete achievement
     const success = deleteAchievement(id);
     

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { readAchievements, createAchievement } from '@/lib/achievements';
-import { verifyPassword } from '@/lib/auth';
 import { Achievement } from '@/lib/types';
 
 /**
@@ -26,19 +25,7 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    
-    // Check auth
-    const password = body.password;
-    if (!password || !verifyPassword(password)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Remove password from data
-    const { password: _, ...achievementData } = body;
+    const achievementData = await request.json();
 
     // Validate required fields
     const required = ['date', 'category', 'distance', 'name', 'rankingScratch', 'rankingCategory', 'rankingCategoryPosition'];

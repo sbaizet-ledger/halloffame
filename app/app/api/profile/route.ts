@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { readProfile, writeProfile } from '@/lib/profile';
-import { verifyPassword } from '@/lib/auth';
 import { UserProfile } from '@/lib/types';
 
 export async function GET() {
@@ -18,16 +17,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const body = await request.json();
-    const { password, profile } = body;
-
-    // Verify password
-    if (!password || !verifyPassword(password)) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const profile = await request.json();
 
     // Validate profile data
     if (!profile || typeof profile !== 'object') {
