@@ -4,7 +4,7 @@
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "date": "2026-06-15",
       "category": "Trail",
-      "distance": 42.195,
+      "distance": 42.1,
       "name": "Ultra Trail du Mont Blanc - Updated",
       "photoLinks": [
         "https://example.com/utmb/photo1.jpg",
@@ -15,11 +15,10 @@
       ],
       "eventWebsite": "https://utmb.world",
       "rankingScratch": 156,
-      "rankingCategory": "Master 1 H",
+      "rankingCategory": "Master 0 M",
       "rankingCategoryPosition": 12,
-      "badges": [
-        "marathon"
-      ]
+      "badges": [],
+      "denivelePositive": 1500
     },
     {
       "id": "660e8400-e29b-41d4-a716-446655440001",

@@ -33,18 +33,44 @@ interface Props {
 const CATEGORY_OPTIONS = ['Trail', 'Run'] as const;
 
 const RANKING_CATEGORIES = [
-  'M0H (18-29)',
-  'M1H (30-39)',
-  'M2H (40-49)',
-  'M3H (50-59)',
-  'M4H (60-69)',
-  'M5H (70+)',
-  'M0F (18-29)',
-  'M1F (30-39)',
-  'M2F (40-49)',
-  'M3F (50-59)',
-  'M4F (60-69)',
-  'M5F (70+)',
+  // Youth categories
+  'Poussin H (U10)',
+  'Poussin F (U10)',
+  'Benjamin H (U12)',
+  'Benjamin F (U12)',
+  'Minime H (U14)',
+  'Minime F (U14)',
+  'Cadet H (U16)',
+  'Cadet F (U16)',
+  'Junior H (U18)',
+  'Junior F (U18)',
+  'Espoir H (U20)',
+  'Espoir F (U20)',
+  // Adult categories
+  'Senior H (20-34)',
+  'Senior F (20-34)',
+  'Master 0 H (35-39)',
+  'Master 0 F (35-39)',
+  'Master 1 H (40-44)',
+  'Master 1 F (40-44)',
+  'Master 2 H (45-49)',
+  'Master 2 F (45-49)',
+  'Master 3 H (50-54)',
+  'Master 3 F (50-54)',
+  'Master 4 H (55-59)',
+  'Master 4 F (55-59)',
+  'Master 5 H (60-64)',
+  'Master 5 F (60-64)',
+  'Master 6 H (65-69)',
+  'Master 6 F (65-69)',
+  'Master 7 H (70-74)',
+  'Master 7 F (70-74)',
+  'Master 8 H (75-79)',
+  'Master 8 F (75-79)',
+  'Master 9 H (80-84)',
+  'Master 9 F (80-84)',
+  'Master 10 H (85+)',
+  'Master 10 F (85+)',
 ];
 
 export function AchievementForm({ open, achievement, onClose, onSubmit }: Props) {
@@ -69,6 +95,18 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
 
   useEffect(() => {
     if (achievement) {
+      // Match stored category to dropdown option with age range
+      // e.g., "Master 0 H" should select "Master 0 H (35-39)"
+      let categoryForDropdown = achievement.rankingCategory || '';
+      if (categoryForDropdown) {
+        const match = RANKING_CATEGORIES.find(cat => 
+          cat.startsWith(categoryForDropdown + ' ')
+        );
+        if (match) {
+          categoryForDropdown = match;
+        }
+      }
+
       setFormData({
         name: achievement.name,
         date: achievement.date,
@@ -79,7 +117,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
         totalParticipants: achievement.totalParticipants ? String(achievement.totalParticipants) : '',
         categoryParticipants: achievement.categoryParticipants ? String(achievement.categoryParticipants) : '',
         rankingScratch: achievement.rankingScratch ? String(achievement.rankingScratch) : '',
-        rankingCategory: achievement.rankingCategory || '',
+        rankingCategory: categoryForDropdown,
         rankingCategoryPosition: achievement.rankingCategoryPosition ? String(achievement.rankingCategoryPosition) : '',
         eventWebsite: achievement.eventWebsite,
       });
@@ -175,6 +213,11 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
     e.preventDefault();
     if (!validateForm()) return;
 
+    // Strip age range from category (e.g., "Master 0 M (35-39)" -> "Master 0 M")
+    const cleanCategory = formData.rankingCategory 
+      ? formData.rankingCategory.replace(/\s*\([^)]+\)\s*$/, '').trim()
+      : '';
+
     const data: Omit<Achievement, 'id'> = {
       name: formData.name.trim(),
       date: formData.date,
@@ -185,7 +228,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       ...(formData.totalParticipants && { totalParticipants: parseInt(formData.totalParticipants) }),
       ...(formData.categoryParticipants && { categoryParticipants: parseInt(formData.categoryParticipants) }),
       ...(formData.rankingScratch && { rankingScratch: parseInt(formData.rankingScratch) }),
-      ...(formData.rankingCategory && { rankingCategory: formData.rankingCategory }),
+      ...(cleanCategory && { rankingCategory: cleanCategory }),
       ...(formData.rankingCategoryPosition && { rankingCategoryPosition: parseInt(formData.rankingCategoryPosition) }),
       eventWebsite: formData.eventWebsite.trim(),
       photoLinks: photoLinks.filter(link => link.trim().length > 0),

@@ -10,7 +10,7 @@ Self-hosted achievement tracker for runners and trail athletes. Keep your person
   - Event name and date
   - Links to photos, videos, and official event websites
   - Scratch ranking (overall position)
-  - Category ranking with gender (Poussin M/F, Benjamin M/F, Minime M/F, Cadet M/F, Junior M/F, Espoir M/F, Senior M/F, Master 0-10 M/F)
+  - Category ranking with gender (Poussin H/F, Benjamin H/F, Minime H/F, Cadet H/F, Junior H/F, Espoir H/F, Senior H/F, Master 0-10 H/F)
 
 - **Management**
   - Add new achievements
@@ -128,24 +128,24 @@ Achievements are stored in `/data/achievements.json`. The file is automatically 
 
 Available age/gender categories:
 
-- Poussin M/F (U10)
-- Benjamin M/F (U12)
-- Minime M/F (U14)
-- Cadet M/F (U16)
-- Junior M/F (U18)
-- Espoir M/F (U20)
-- Senior M/F (20-34)
-- Master 0 M/F (35-39)
-- Master 1 M/F (40-44)
-- Master 2 M/F (45-49)
-- Master 3 M/F (50-54)
-- Master 4 M/F (55-59)
-- Master 5 M/F (60-64)
-- Master 6 M/F (65-69)
-- Master 7 M/F (70-74)
-- Master 8 M/F (75-79)
-- Master 9 M/F (80-84)
-- Master 10 M/F (85+)
+- Poussin H/F (U10)
+- Benjamin H/F (U12)
+- Minime H/F (U14)
+- Cadet H/F (U16)
+- Junior H/F (U18)
+- Espoir H/F (U20)
+- Senior H/F (20-34)
+- Master 0 H/F (35-39)
+- Master 1 H/F (40-44)
+- Master 2 H/F (45-49)
+- Master 3 H/F (50-54)
+- Master 4 H/F (55-59)
+- Master 5 H/F (60-64)
+- Master 6 H/F (65-69)
+- Master 7 H/F (70-74)
+- Master 8 H/F (75-79)
+- Master 9 H/F (80-84)
+- Master 10 H/F (85+)
 
 ## Project Structure
 

@@ -63,9 +63,9 @@ Age/gender categories follow French athletics standards. Format: `[Category] [M/
 - Master 9 (80-84)
 - Master 10 (85+)
 
-**Gender**: M (Homme) or F (Femme)
+**Gender**: H (Homme) or F (Femme)
 
-Examples: `Senior H`, `Master 1 F`, `Espoir M`
+Examples: `Senior H`, `Master 1 F`, `Espoir H`
 
 ## Key Requirements
 
