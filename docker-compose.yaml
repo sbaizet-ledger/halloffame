@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     container_name: halloffame
     restart: unless-stopped
     volumes:
