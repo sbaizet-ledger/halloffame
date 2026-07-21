@@ -66,7 +66,7 @@ export function QuoteOfTheDay() {
 
     // Fetch from API
     try {
-      const response = await fetch('https://zenquotes.io/api/today');
+      const response = await fetch('/api/quote');
       
       if (!response.ok) {
         throw new Error('API request failed');
@@ -74,10 +74,10 @@ export function QuoteOfTheDay() {
 
       const data = await response.json();
       
-      if (data && data.length > 0 && data[0].q && data[0].a) {
+      if (data && data.quote && data.author) {
         const quoteData: QuoteData = {
-          quote: data[0].q,
-          author: data[0].a,
+          quote: data.quote,
+          author: data.author,
           date: getTodayUTC()
         };
 
