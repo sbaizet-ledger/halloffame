@@ -279,6 +279,7 @@ export default function Home() {
           <ProfileHero
             profile={profile}
             stats={computeStats()}
+            isAuthenticated={isAuthenticated}
           />
         )}
 
@@ -349,20 +350,22 @@ export default function Home() {
                   <AchievementCard
                     key={achievement.id}
                     achievement={achievement}
-                    onEdit={handleEdit}
-                    onDelete={handleDeleteClick}
-                    onToggleFeatured={handleToggleFeatured}
-                    isAuthenticated={isAuthenticated}
+                    {...(isAuthenticated && {
+                      onEdit: handleEdit,
+                      onDelete: handleDeleteClick,
+                      onToggleFeatured: handleToggleFeatured,
+                    })}
                   />
                 ))}
               </div>
             ) : (
               <AchievementTable
                 achievements={filtered}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onToggleFeatured={handleToggleFeatured}
-                isAuthenticated={isAuthenticated}
+                {...(isAuthenticated && {
+                  onEdit: handleEdit,
+                  onDelete: handleDeleteClick,
+                  onToggleFeatured: handleToggleFeatured,
+                })}
               />
             )}
           </>

@@ -11,26 +11,43 @@ interface ProfileHeroProps {
     totalDistance: number;
     yearsActive: number;
   };
+  isAuthenticated?: boolean;
 }
 
-export function ProfileHero({ profile, stats }: ProfileHeroProps) {
+export function ProfileHero({ profile, stats, isAuthenticated }: ProfileHeroProps) {
   return (
     <div className="mb-8 text-center py-8">
       {/* Avatar */}
       <div className="flex justify-center mb-4">
-        <Link href="/profile" className="cursor-pointer group">
-          {profile.avatarPath ? (
-            <img
-              src={profile.avatarPath}
-              alt={`${profile.nickname}'s avatar`}
-              className="w-32 h-32 rounded-full object-cover border-4 border-border transition-opacity group-hover:opacity-80"
-            />
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-border transition-colors group-hover:bg-muted/80">
-              <User className="w-16 h-16 text-muted-foreground" />
-            </div>
-          )}
-        </Link>
+        {isAuthenticated ? (
+          <Link href="/profile" className="cursor-pointer group">
+            {profile.avatarPath ? (
+              <img
+                src={profile.avatarPath}
+                alt={`${profile.nickname}'s avatar`}
+                className="w-32 h-32 rounded-full object-cover border-4 border-border transition-opacity group-hover:opacity-80"
+              />
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-border transition-colors group-hover:bg-muted/80">
+                <User className="w-16 h-16 text-muted-foreground" />
+              </div>
+            )}
+          </Link>
+        ) : (
+          <>
+            {profile.avatarPath ? (
+              <img
+                src={profile.avatarPath}
+                alt={`${profile.nickname}'s avatar`}
+                className="w-32 h-32 rounded-full object-cover border-4 border-border"
+              />
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center border-4 border-border">
+                <User className="w-16 h-16 text-muted-foreground" />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Nickname */}

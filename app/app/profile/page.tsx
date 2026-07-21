@@ -122,6 +122,13 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
