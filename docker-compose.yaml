@@ -1,0 +1,30 @@
+services:
+  halloffame:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: halloffame
+    restart: unless-stopped
+    volumes:
+      - halloffame-data:/app/data
+      - halloffame-uploads:/app/public/uploads
+#    networks:
+#      - halloffame-network
+    ports:
+      - "${PORT}:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+#networks:
+#  halloffame-network:
+#    driver: bridge
+
+volumes:
+  halloffame-data:
+    driver: local
+  halloffame-uploads:
+    driver: local
