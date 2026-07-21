@@ -27,6 +27,33 @@ export async function PUT(request: Request) {
       );
     }
 
+    // Validate gender if provided
+    if (profile.gender && !['H', 'F'].includes(profile.gender)) {
+      return NextResponse.json(
+        { error: 'Gender must be H or F' },
+        { status: 400 }
+      );
+    }
+
+    // Validate birthday format if provided
+    if (profile.birthday) {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(profile.birthday)) {
+        return NextResponse.json(
+          { error: 'Birthday must be in YYYY-MM-DD format' },
+          { status: 400 }
+        );
+      }
+      // Check if valid date
+      const date = new Date(profile.birthday);
+      if (isNaN(date.getTime())) {
+        return NextResponse.json(
+          { error: 'Invalid birthday date' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Ensure required fields
     const updatedProfile: UserProfile = {
       ...profile,

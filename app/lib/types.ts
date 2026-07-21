@@ -80,6 +80,8 @@ export interface UserProfile {
   avatarPath?: string;
   joinedYear?: number;
   location?: string;
+  gender?: 'H' | 'F';
+  birthday?: string; // YYYY-MM-DD format
   theme: ThemeConfig;
   socialLinks?: {
     strava?: string;

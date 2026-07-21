@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Loader2, Palette, Lock } from 'lucide-react';
 
 // Color conversion utilities
@@ -105,6 +106,8 @@ export default function ProfilePage() {
     nickname: '',
     bio: '',
     location: '',
+    gender: '' as '' | 'H' | 'F',
+    birthday: '',
     joinedYear: '',
     stravaUrl: '',
     instagram: '',
@@ -141,6 +144,8 @@ export default function ProfilePage() {
         nickname: data.nickname || '',
         bio: data.bio || '',
         location: data.location || '',
+        gender: data.gender || '',
+        birthday: data.birthday || '',
         joinedYear: data.joinedYear ? String(data.joinedYear) : '',
         stravaUrl: data.socialLinks?.strava || '',
         instagram: data.socialLinks?.instagram || '',
@@ -219,6 +224,8 @@ export default function ProfilePage() {
         nickname: formData.nickname || 'Runner',
         bio: formData.bio || undefined,
         location: formData.location || undefined,
+        gender: formData.gender || undefined,
+        birthday: formData.birthday || undefined,
         joinedYear: formData.joinedYear ? parseInt(formData.joinedYear) : undefined,
         avatarPath,
         theme: {
@@ -339,6 +346,34 @@ export default function ProfilePage() {
                   onChange={(e) => handleInputChange('location', e.target.value)}
                   placeholder="e.g., French Alps"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => handleInputChange('gender', value || '')}
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="H">Homme</SelectItem>
+                      <SelectItem value="F">Femme</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="birthday">Birthday</Label>
+                  <Input
+                    id="birthday"
+                    type="date"
+                    value={formData.birthday}
+                    onChange={(e) => handleInputChange('birthday', e.target.value)}
+                  />
+                </div>
               </div>
 
               <div>
