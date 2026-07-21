@@ -1,5 +1,43 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Authentication Setup
+
+This application uses JWT-based session authentication with httpOnly cookies.
+
+### Initial Setup
+
+1. **Generate a secure JWT secret:**
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+   ```
+
+2. **Configure environment variables:**
+   
+   Create `app/.env.local`:
+   ```bash
+   ADMIN_PASSWORD=your_admin_password
+   JWT_SECRET=<paste_generated_secret_from_step_1>
+   ```
+
+3. **Security notes:**
+   - Never commit `.env.local` to version control
+   - Each deployment should use a unique `JWT_SECRET`
+   - Regenerate secret if compromised
+
+### How It Works
+
+- **Login:** Enter admin password once
+- **Session:** Valid for 24 hours
+- **Persistence:** Session survives page refresh
+- **Logout:** Manual logout or automatic after 24h
+
+### For Open Source Users
+
+When deploying your own instance:
+1. Generate your own `JWT_SECRET` (never use example values)
+2. Set your own `ADMIN_PASSWORD`
+3. Keep `.env.local` private and secure
+
 ## Getting Started
 
 First, run the development server:

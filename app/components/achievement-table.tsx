@@ -138,7 +138,9 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
                 {getSortIcon('date')}
               </div>
             </TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            {(onEdit || onDelete || onToggleFeatured) && (
+              <TableHead className="text-right">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -167,50 +169,52 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
                 {achievement.rankingCategory} - #{achievement.rankingCategoryPosition}
               </TableCell>
               <TableCell>{formatDate(achievement.date)}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex gap-1 justify-end">
-                  {onToggleFeatured && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleFeatured(achievement.id, !achievement.featured);
-                      }}
-                      aria-label={achievement.featured ? "Remove from featured" : "Add to featured"}
-                      title={achievement.featured ? "Remove from featured" : "Add to featured"}
-                    >
-                      <Star className={cn("h-4 w-4", achievement.featured && "fill-primary text-primary")} />
-                    </Button>
-                  )}
-                  {onEdit && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(achievement);
-                      }}
-                      aria-label="Edit achievement"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {onDelete && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(achievement.id);
-                      }}
-                      aria-label="Delete achievement"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </TableCell>
+              {(onEdit || onDelete || onToggleFeatured) && (
+                <TableCell className="text-right">
+                  <div className="flex gap-1 justify-end">
+                    {onToggleFeatured && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleFeatured(achievement.id, !achievement.featured);
+                        }}
+                        aria-label={achievement.featured ? "Remove from featured" : "Add to featured"}
+                        title={achievement.featured ? "Remove from featured" : "Add to featured"}
+                      >
+                        <Star className={cn("h-4 w-4", achievement.featured && "fill-primary text-primary")} />
+                      </Button>
+                    )}
+                    {onEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(achievement);
+                        }}
+                        aria-label="Edit achievement"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(achievement.id);
+                        }}
+                        aria-label="Delete achievement"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

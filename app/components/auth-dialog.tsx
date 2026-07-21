@@ -58,10 +58,10 @@ export function AuthDialog({ open, onClose, onSubmit }: Props) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            Admin Authentication
+            Admin Login
           </DialogTitle>
           <DialogDescription>
-            Enter the admin password to continue with this action.
+            Enter the admin password to manage achievements.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

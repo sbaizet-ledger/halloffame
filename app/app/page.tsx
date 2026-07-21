@@ -24,13 +24,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Trophy, Loader2, BarChart3 } from 'lucide-react';
+import { Plus, Trophy, Loader2, BarChart3, Lock } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 type CategoryFilter = 'all' | 'Trail' | 'Run';
 type SortOption = 'date' | 'distance';
 
 export default function Home() {
   const router = useRouter();
+  const { isAuthenticated, login, logout } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filtered, setFiltered] = useState<Achievement[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -39,11 +41,10 @@ export default function Home() {
   const [error, setError] = useState('');
   
   const [showForm, setShowForm] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [pendingAction, setPendingAction] = useState<((password: string) => Promise<void>) | null>(null);
   
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [sortOption, setSortOption] = useState<SortOption>('date');
@@ -131,61 +132,45 @@ export default function Home() {
   };
 
   // Auth flow
-  const requireAuth = (action: (password: string) => Promise<void>) => {
-    setPendingAction(() => action);
-    setShowAuth(true);
-  };
-
-  const handleAuthSubmit = async (password: string) => {
-    if (!pendingAction) return;
-
-    try {
-      await pendingAction(password);
-      setShowAuth(false);
-      setPendingAction(null);
-    } catch (err) {
-      throw err; // Let AuthDialog handle error display
-    }
+  const handleLoginSubmit = async (password: string) => {
+    await login(password);
+    setShowLoginDialog(false);
   };
 
   // CRUD operations
   const handleCreate = async (data: Omit<Achievement, 'id'>) => {
-    requireAuth(async (password) => {
-      const res = await fetch('/api/achievements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, password }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to create achievement');
-      }
-
-      await fetchAchievements();
-      await fetchMilestones();
+    const res = await fetch('/api/achievements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to create achievement');
+    }
+
+    await fetchAchievements();
+    await fetchMilestones();
   };
 
   const handleUpdate = async (data: Omit<Achievement, 'id'>) => {
     if (!editingAchievement) return;
 
-    requireAuth(async (password) => {
-      const res = await fetch(`/api/achievements/${editingAchievement.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, password }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to update achievement');
-      }
-
-      await fetchAchievements();
-      await fetchMilestones();
-      setEditingAchievement(null);
+    const res = await fetch(`/api/achievements/${editingAchievement.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to update achievement');
+    }
+
+    await fetchAchievements();
+    await fetchMilestones();
+    setEditingAchievement(null);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -193,26 +178,22 @@ export default function Home() {
     setShowDeleteConfirm(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deletingId) return;
     
-    requireAuth(async (password) => {
-      const res = await fetch(`/api/achievements/${deletingId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to delete achievement');
-      }
-
-      await fetchAchievements();
-      await fetchMilestones();
-      setShowDeleteConfirm(false);
-      setDeletingId(null);
+    const res = await fetch(`/api/achievements/${deletingId}`, {
+      method: 'DELETE',
     });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to delete achievement');
+    }
+
+    await fetchAchievements();
+    await fetchMilestones();
+    setShowDeleteConfirm(false);
+    setDeletingId(null);
   };
 
   const handleEdit = (achievement: Achievement) => {
@@ -239,20 +220,18 @@ export default function Home() {
   };
 
   const handleToggleFeatured = async (id: string, featured: boolean) => {
-    requireAuth(async (password) => {
-      const res = await fetch(`/api/achievements/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ featured, password }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to update featured status');
-      }
-
-      await fetchAchievements();
+    const res = await fetch(`/api/achievements/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ featured }),
     });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to update featured status');
+    }
+
+    await fetchAchievements();
   };
 
   // Compute stats for ProfileHero
@@ -277,10 +256,22 @@ export default function Home() {
             <BarChart3 className="h-4 w-4 mr-2" />
             Statistics
           </Button>
-          <Button onClick={() => setShowForm(true)} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Achievement
-          </Button>
+          {!isAuthenticated ? (
+            <Button onClick={() => setShowLoginDialog(true)} size="lg">
+              <Lock className="mr-2 h-4 w-4" />
+              Admin Login
+            </Button>
+          ) : (
+            <>
+              <Button onClick={() => setShowForm(true)} size="lg">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Achievement
+              </Button>
+              <Button variant="outline" size="lg" onClick={logout}>
+                Logout
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Profile Hero */}
@@ -288,6 +279,7 @@ export default function Home() {
           <ProfileHero
             profile={profile}
             stats={computeStats()}
+            isAuthenticated={isAuthenticated}
           />
         )}
 
@@ -354,22 +346,26 @@ export default function Home() {
           <>
             {viewMode === 'card' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {filtered.map(achievement => (
+                  {filtered.map(achievement => (
                   <AchievementCard
                     key={achievement.id}
                     achievement={achievement}
-                    onEdit={handleEdit}
-                    onDelete={handleDeleteClick}
-                    onToggleFeatured={handleToggleFeatured}
+                    {...(isAuthenticated && {
+                      onEdit: handleEdit,
+                      onDelete: handleDeleteClick,
+                      onToggleFeatured: handleToggleFeatured,
+                    })}
                   />
                 ))}
               </div>
             ) : (
               <AchievementTable
                 achievements={filtered}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onToggleFeatured={handleToggleFeatured}
+                {...(isAuthenticated && {
+                  onEdit: handleEdit,
+                  onDelete: handleDeleteClick,
+                  onToggleFeatured: handleToggleFeatured,
+                })}
               />
             )}
           </>
@@ -393,12 +389,9 @@ export default function Home() {
         />
 
         <AuthDialog
-          open={showAuth}
-          onClose={() => {
-            setShowAuth(false);
-            setPendingAction(null);
-          }}
-          onSubmit={handleAuthSubmit}
+          open={showLoginDialog}
+          onClose={() => setShowLoginDialog(false)}
+          onSubmit={handleLoginSubmit}
         />
 
         <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

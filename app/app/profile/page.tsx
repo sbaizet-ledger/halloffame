@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserProfile } from '@/lib/types';
+import { useAuth } from '@/lib/auth-context';
 import { AvatarUpload } from '@/components/avatar-upload';
 import { AuthDialog } from '@/components/auth-dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Loader2, Palette } from 'lucide-react';
+import { ArrowLeft, Loader2, Palette, Lock } from 'lucide-react';
 
 // Color conversion utilities
 function hexToOklch(hex: string): string {
@@ -93,6 +94,7 @@ function oklchToHex(oklch: string): string {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { isAuthenticated, login, logout } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -114,11 +116,18 @@ export default function ProfilePage() {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
-  const [showAuth, setShowAuth] = useState(false);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
 
   const fetchProfile = async () => {
     try {
@@ -165,11 +174,21 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSave = () => {
-    setShowAuth(true);
+  const handleLoginSubmit = async (password: string) => {
+    await login(password);
+    setShowLoginDialog(false);
+    await handleSaveInternal();
   };
 
-  const handleAuthSubmit = async (password: string) => {
+  const handleSave = async () => {
+    if (!isAuthenticated) {
+      setShowLoginDialog(true);
+      return;
+    }
+    await handleSaveInternal();
+  };
+
+  const handleSaveInternal = async () => {
     try {
       setSaving(true);
       setError('');
@@ -180,7 +199,6 @@ export default function ProfilePage() {
       if (avatarFile) {
         const uploadFormData = new FormData();
         uploadFormData.append('file', avatarFile);
-        uploadFormData.append('password', password);
 
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
@@ -219,7 +237,7 @@ export default function ProfilePage() {
       const profileRes = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, profile: updatedProfile }),
+        body: JSON.stringify(updatedProfile),
       });
 
       if (!profileRes.ok) {
@@ -228,15 +246,13 @@ export default function ProfilePage() {
       }
 
       setSuccess(true);
-      setShowAuth(false);
       
       // Redirect to home after 1 second
       setTimeout(() => {
         router.push('/');
       }, 1000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed');
-      throw err; // Let AuthDialog show error
+      setError(err instanceof Error ? err.message : 'Save failed')
     } finally {
       setSaving(false);
     }
@@ -467,9 +483,9 @@ export default function ProfilePage() {
 
         {/* Auth Dialog */}
         <AuthDialog
-          open={showAuth}
-          onClose={() => setShowAuth(false)}
-          onSubmit={handleAuthSubmit}
+          open={showLoginDialog}
+          onClose={() => setShowLoginDialog(false)}
+          onSubmit={handleLoginSubmit}
         />
       </div>
     </div>
