@@ -11,6 +11,7 @@ import { FilterToolbar } from '@/components/filter-toolbar';
 import { ProfileHero } from '@/components/profile-hero';
 import { FeaturedAchievements } from '@/components/featured-achievements';
 import { MilestonesTimeline } from '@/components/milestones-timeline';
+import { QuoteOfTheDay } from '@/components/quote-of-the-day';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -288,6 +289,11 @@ export default function Home() {
             profile={profile}
             stats={computeStats()}
           />
+        )}
+
+        {/* Quote of the Day */}
+        {profile?.showQuoteOfTheDay !== false && (
+          <QuoteOfTheDay />
         )}
 
         {/* Featured Achievements */}

@@ -9,7 +9,8 @@ export function getDefaultProfile(): UserProfile {
     nickname: 'Runner',
     theme: {
       primaryColor: 'oklch(0.65 0.24 45)'
-    }
+    },
+    showQuoteOfTheDay: true
   };
 }
 

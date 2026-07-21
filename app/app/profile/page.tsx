@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Loader2, Palette } from 'lucide-react';
 
@@ -107,6 +108,7 @@ export default function ProfilePage() {
     instagram: '',
     website: '',
     primaryColor: '#f97316', // Default orange
+    showQuoteOfTheDay: true,
   });
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -134,6 +136,7 @@ export default function ProfilePage() {
         instagram: data.socialLinks?.instagram || '',
         website: data.socialLinks?.website || '',
         primaryColor: oklchToHex(data.theme?.primaryColor || 'oklch(0.65 0.24 45)'),
+        showQuoteOfTheDay: data.showQuoteOfTheDay !== false,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
@@ -152,8 +155,12 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: string, value: string | boolean) => {
+    if (field === 'showQuoteOfTheDay') {
+      setFormData(prev => ({ ...prev, [field]: value === 'true' || value === true }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value as string }));
+    }
   };
 
   const handleSave = () => {
@@ -203,6 +210,7 @@ export default function ProfilePage() {
           website: formData.website || undefined,
         },
         customMilestones: profile?.customMilestones,
+        showQuoteOfTheDay: formData.showQuoteOfTheDay,
       };
 
       const profileRes = await fetch('/api/profile', {
@@ -361,6 +369,26 @@ export default function ProfilePage() {
                 <p className="text-xs text-muted-foreground mt-2">
                   This color will be used for buttons, accents, and highlights throughout the app.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Preferences */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Preferences</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="showQuote">Show Quote of the Day</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Display an inspirational quote on the homepage
+                  </p>
+                </div>
+                <Switch
+                  id="showQuote"
+                  checked={formData.showQuoteOfTheDay}
+                  onCheckedChange={(checked) => handleInputChange('showQuoteOfTheDay', String(checked))}
+                />
               </div>
             </div>
           </div>

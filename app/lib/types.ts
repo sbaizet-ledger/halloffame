@@ -83,6 +83,7 @@ export interface UserProfile {
     website?: string;
   };
   customMilestones?: CustomMilestone[];
+  showQuoteOfTheDay?: boolean;
 }
 
 export type BadgeCriteria =
