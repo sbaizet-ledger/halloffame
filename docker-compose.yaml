@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     container_name: halloffame
     restart: unless-stopped
     volumes:
