@@ -109,6 +109,7 @@ export default function ProfilePage() {
     website: '',
     primaryColor: '#f97316', // Default orange
     showQuoteOfTheDay: true,
+    showJourneyMilestones: true,
   });
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -137,6 +138,7 @@ export default function ProfilePage() {
         website: data.socialLinks?.website || '',
         primaryColor: oklchToHex(data.theme?.primaryColor || 'oklch(0.65 0.24 45)'),
         showQuoteOfTheDay: data.showQuoteOfTheDay !== false,
+        showJourneyMilestones: data.showJourneyMilestones !== false,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
@@ -156,7 +158,7 @@ export default function ProfilePage() {
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    if (field === 'showQuoteOfTheDay') {
+    if (field === 'showQuoteOfTheDay' || field === 'showJourneyMilestones') {
       setFormData(prev => ({ ...prev, [field]: value === 'true' || value === true }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value as string }));
@@ -211,6 +213,7 @@ export default function ProfilePage() {
         },
         customMilestones: profile?.customMilestones,
         showQuoteOfTheDay: formData.showQuoteOfTheDay,
+        showJourneyMilestones: formData.showJourneyMilestones,
       };
 
       const profileRes = await fetch('/api/profile', {
@@ -388,6 +391,19 @@ export default function ProfilePage() {
                   id="showQuote"
                   checked={formData.showQuoteOfTheDay}
                   onCheckedChange={(checked) => handleInputChange('showQuoteOfTheDay', String(checked))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="showMilestones">Show Journey Milestones</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Display milestone timeline on the homepage
+                  </p>
+                </div>
+                <Switch
+                  id="showMilestones"
+                  checked={formData.showJourneyMilestones}
+                  onCheckedChange={(checked) => handleInputChange('showJourneyMilestones', String(checked))}
                 />
               </div>
             </div>

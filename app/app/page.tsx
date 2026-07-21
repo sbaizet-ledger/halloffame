@@ -302,7 +302,7 @@ export default function Home() {
         )}
 
         {/* Milestones Timeline Preview */}
-        {!loading && milestones.length > 0 && (
+        {!loading && milestones.length > 0 && profile?.showJourneyMilestones !== false && (
           <div className="mb-8">
             <MilestonesTimeline milestones={milestones} compact={true} />
           </div>

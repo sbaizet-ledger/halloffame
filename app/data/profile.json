@@ -11,5 +11,6 @@
     "strava": "https://strava.app.link/1ylEWcJNV4b",
     "instagram": "@sebastienbzt"
   },
-  "showQuoteOfTheDay": true
+  "showQuoteOfTheDay": true,
+  "showJourneyMilestones": false
 }

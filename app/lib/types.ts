@@ -84,6 +84,7 @@ export interface UserProfile {
   };
   customMilestones?: CustomMilestone[];
   showQuoteOfTheDay?: boolean;
+  showJourneyMilestones?: boolean;
 }
 
 export type BadgeCriteria =
