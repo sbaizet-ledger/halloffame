@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Achievement } from '@/lib/types';
+import { Achievement, UserProfile } from '@/lib/types';
+import { calculateAgeCategory, getCategoryWithAgeRange } from '@/lib/category-calculator';
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Info } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -92,6 +93,23 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
   const [photoLinks, setPhotoLinks] = useState<string[]>(['']);
   const [videoLinks, setVideoLinks] = useState<string[]>(['']);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  // Fetch profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     if (achievement) {
@@ -127,6 +145,30 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       resetForm();
     }
   }, [achievement, open]);
+
+  // Auto-calculate category when date changes (only for new achievements)
+  useEffect(() => {
+    // Skip if editing existing achievement
+    if (achievement) return;
+
+    // Skip if no date, profile, birthday, or gender
+    if (!formData.date || !profile?.birthday || !profile?.gender) return;
+
+    // Calculate category
+    const calculatedCategory = calculateAgeCategory(
+      profile.birthday,
+      formData.date,
+      profile.gender
+    );
+
+    if (calculatedCategory) {
+      // Convert to dropdown format with age range
+      const categoryWithRange = getCategoryWithAgeRange(calculatedCategory);
+      if (categoryWithRange) {
+        setFormData(prev => ({ ...prev, rankingCategory: categoryWithRange }));
+      }
+    }
+  }, [formData.date, profile, achievement]);
 
   const resetForm = () => {
     setFormData({
@@ -428,6 +470,18 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
                   </SelectContent>
                 </Select>
                 {errors.rankingCategory && <p className="text-sm text-destructive">{errors.rankingCategory}</p>}
+                {!achievement && profile?.birthday && profile?.gender && formData.date && formData.rankingCategory && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Info className="h-3 w-3" />
+                    Auto-filled from profile birthday
+                  </p>
+                )}
+                {!achievement && (!profile?.birthday || !profile?.gender) && (
+                  <p className="text-xs text-amber-600 dark:text-amber-500 flex items-center gap-1">
+                    <Info className="h-3 w-3" />
+                    Set birthday in profile for auto-fill
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="rankingCategoryPosition">Category Rank</Label>
