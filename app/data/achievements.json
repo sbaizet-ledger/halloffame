@@ -17,6 +17,8 @@
       "rankingScratch": 156,
       "rankingCategory": "Master 0 M",
       "rankingCategoryPosition": 12,
+      "totalParticipants": 850,
+      "categoryParticipants": 120,
       "badges": [],
       "denivelePositive": 1500
     },
@@ -34,6 +36,8 @@
       "rankingScratch": 487,
       "rankingCategory": "Senior H",
       "rankingCategoryPosition": 89,
+      "totalParticipants": 2500,
+      "categoryParticipants": 450,
       "featured": false,
       "badges": []
     },
@@ -51,6 +55,8 @@
       "rankingScratch": 23,
       "rankingCategory": "Master 0 H",
       "rankingCategoryPosition": 5,
+      "totalParticipants": 200,
+      "categoryParticipants": 35,
       "badges": []
     }
   ]

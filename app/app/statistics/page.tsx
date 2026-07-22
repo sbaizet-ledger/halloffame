@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Statistics, Milestone } from '@/lib/types';
 import { StatCard } from '@/components/stat-card';
 import { DistanceChart } from '@/components/distance-chart';
+import { RankingPercentageChart } from '@/components/ranking-percentage-chart';
 import { MilestonesTimeline } from '@/components/milestones-timeline';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -223,6 +224,11 @@ export default function StatisticsPage() {
             monthlyData={statistics.timelineMonthly}
             yearlyData={statistics.timelineYearly}
           />
+        </div>
+
+        {/* Ranking Percentage Chart */}
+        <div className="mb-8">
+          <RankingPercentageChart data={statistics.rankingPercentageTimeline} />
         </div>
       </div>
     </div>

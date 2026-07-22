@@ -40,6 +40,13 @@ export interface TimelineDataPoint {
   runDistance: number;
 }
 
+export interface RankingPercentageDataPoint {
+  date: string;
+  raceName: string;
+  scratchPercentage?: number;
+  categoryPercentage?: number;
+}
+
 export interface Statistics {
   overview: {
     totalRaces: number;
@@ -61,6 +68,7 @@ export interface Statistics {
   };
   timelineMonthly: TimelineDataPoint[];
   timelineYearly: TimelineDataPoint[];
+  rankingPercentageTimeline: RankingPercentageDataPoint[];
 }
 
 export interface ThemeConfig {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readAchievements } from '@/lib/achievements';
-import { Statistics, TimelineDataPoint } from '@/lib/types';
+import { Statistics, TimelineDataPoint, RankingPercentageDataPoint } from '@/lib/types';
 
 export async function GET() {
   try {
@@ -28,6 +28,7 @@ export async function GET() {
         },
         timelineMonthly: [],
         timelineYearly: [],
+        rankingPercentageTimeline: [],
       } as Statistics);
     }
 
@@ -155,12 +156,41 @@ export async function GET() {
       }))
       .sort((a, b) => a.period.localeCompare(b.period));
 
+    // Ranking percentage timeline
+    const rankingPercentageTimeline: RankingPercentageDataPoint[] = achievements
+      .filter(a => {
+        // Must have at least one complete ranking set (scratch or category)
+        const hasScratchData = a.rankingScratch != null && a.totalParticipants != null && a.totalParticipants > 0;
+        const hasCategoryData = a.rankingCategoryPosition != null && a.categoryParticipants != null && a.categoryParticipants > 0;
+        return hasScratchData || hasCategoryData;
+      })
+      .map(a => {
+        const dataPoint: RankingPercentageDataPoint = {
+          date: a.date,
+          raceName: a.name,
+        };
+
+        // Calculate scratch percentage if data available
+        if (a.rankingScratch != null && a.totalParticipants != null && a.totalParticipants > 0) {
+          dataPoint.scratchPercentage = Math.round((a.rankingScratch / a.totalParticipants) * 1000) / 10;
+        }
+
+        // Calculate category percentage if data available
+        if (a.rankingCategoryPosition != null && a.categoryParticipants != null && a.categoryParticipants > 0) {
+          dataPoint.categoryPercentage = Math.round((a.rankingCategoryPosition / a.categoryParticipants) * 1000) / 10;
+        }
+
+        return dataPoint;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+
     const statistics: Statistics = {
       overview,
       rankings,
       records,
       timelineMonthly,
       timelineYearly,
+      rankingPercentageTimeline,
     };
 
     return NextResponse.json(statistics);
