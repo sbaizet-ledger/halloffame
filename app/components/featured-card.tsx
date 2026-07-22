@@ -2,12 +2,14 @@ import { Achievement } from '@/lib/types';
 import { Calendar, MapPin, Award, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { BadgeIcon } from '@/components/badge-icon';
+import { cn } from '@/lib/utils';
 
 interface FeaturedCardProps {
   achievement: Achievement;
+  onViewDetails?: (achievement: Achievement) => void;
 }
 
-export function FeaturedCard({ achievement }: FeaturedCardProps) {
+export function FeaturedCard({ achievement, onViewDetails }: FeaturedCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -16,8 +18,20 @@ export function FeaturedCard({ achievement }: FeaturedCardProps) {
     });
   };
 
+  const handleClick = () => {
+    if (onViewDetails) {
+      onViewDetails(achievement);
+    }
+  };
+
   return (
-    <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <Card 
+      className={cn(
+        "relative overflow-hidden group hover:shadow-lg transition-all duration-300",
+        onViewDetails && "cursor-pointer"
+      )}
+      onClick={handleClick}
+    >
       {/* Featured ribbon */}
       <div className="absolute top-0 right-0 z-10">
         <div className="bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold transform translate-x-2 translate-y-2 rotate-12">

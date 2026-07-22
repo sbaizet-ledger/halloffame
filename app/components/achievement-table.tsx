@@ -21,12 +21,13 @@ interface Props {
   onEdit?: (achievement: Achievement) => void;
   onDelete?: (id: string) => void;
   onToggleFeatured?: (id: string, featured: boolean) => void;
+  onViewDetails?: (achievement: Achievement) => void;
 }
 
 type SortField = 'name' | 'distance' | 'rankingScratch' | 'date';
 type SortDirection = 'asc' | 'desc' | null;
 
-export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatured }: Props) {
+export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatured, onViewDetails }: Props) {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
@@ -94,8 +95,8 @@ export function AchievementTable({ achievements, onEdit, onDelete, onToggleFeatu
     const target = e.target as HTMLElement;
     if (target.closest('button')) return;
     
-    if (onEdit) {
-      onEdit(achievement);
+    if (onViewDetails) {
+      onViewDetails(achievement);
     }
   };
 

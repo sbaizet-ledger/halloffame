@@ -6,6 +6,7 @@ import { Achievement, UserProfile, Milestone } from '@/lib/types';
 import { AchievementCard } from '@/components/achievement-card';
 import { AchievementTable } from '@/components/achievement-table';
 import { AchievementForm } from '@/components/achievement-form';
+import { AchievementDetailDialog } from '@/components/achievement-detail-dialog';
 import { AuthDialog } from '@/components/auth-dialog';
 import { FilterToolbar } from '@/components/filter-toolbar';
 import { ProfileHero } from '@/components/profile-hero';
@@ -43,7 +44,9 @@ export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
+  const [viewingAchievement, setViewingAchievement] = useState<Achievement | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -219,6 +222,11 @@ export default function Home() {
     localStorage.setItem('halloffame-view', view);
   };
 
+  const handleViewDetails = (achievement: Achievement) => {
+    setViewingAchievement(achievement);
+    setShowDetailDialog(true);
+  };
+
   const handleToggleFeatured = async (id: string, featured: boolean) => {
     const res = await fetch(`/api/achievements/${id}`, {
       method: 'PUT',
@@ -290,7 +298,10 @@ export default function Home() {
 
         {/* Featured Achievements */}
         {!loading && achievements.length > 0 && (
-          <FeaturedAchievements achievements={achievements} />
+          <FeaturedAchievements 
+            achievements={achievements}
+            onViewDetails={handleViewDetails}
+          />
         )}
 
         {/* Milestones Timeline Preview */}
@@ -350,6 +361,7 @@ export default function Home() {
                   <AchievementCard
                     key={achievement.id}
                     achievement={achievement}
+                    onViewDetails={handleViewDetails}
                     {...(isAuthenticated && {
                       onEdit: handleEdit,
                       onDelete: handleDeleteClick,
@@ -361,6 +373,7 @@ export default function Home() {
             ) : (
               <AchievementTable
                 achievements={filtered}
+                onViewDetails={handleViewDetails}
                 {...(isAuthenticated && {
                   onEdit: handleEdit,
                   onDelete: handleDeleteClick,
@@ -381,6 +394,12 @@ export default function Home() {
         )}
 
         {/* Dialogs */}
+        <AchievementDetailDialog
+          achievement={viewingAchievement}
+          open={showDetailDialog}
+          onOpenChange={setShowDetailDialog}
+        />
+
         <AchievementForm
           open={showForm}
           achievement={editingAchievement || undefined}

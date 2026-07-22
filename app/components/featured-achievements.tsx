@@ -4,9 +4,10 @@ import { Trophy } from 'lucide-react';
 
 interface FeaturedAchievementsProps {
   achievements: Achievement[];
+  onViewDetails?: (achievement: Achievement) => void;
 }
 
-export function FeaturedAchievements({ achievements }: FeaturedAchievementsProps) {
+export function FeaturedAchievements({ achievements, onViewDetails }: FeaturedAchievementsProps) {
   const featured = achievements
     .filter(a => a.featured)
     .slice(0, 3); // Max 3
@@ -22,7 +23,11 @@ export function FeaturedAchievements({ achievements }: FeaturedAchievementsProps
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {featured.map(achievement => (
-          <FeaturedCard key={achievement.id} achievement={achievement} />
+          <FeaturedCard 
+            key={achievement.id} 
+            achievement={achievement}
+            onViewDetails={onViewDetails}
+          />
         ))}
       </div>
     </section>

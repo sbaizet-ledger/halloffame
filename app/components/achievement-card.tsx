@@ -15,9 +15,10 @@ interface Props {
   onEdit?: (achievement: Achievement) => void;
   onDelete?: (id: string) => void;
   onToggleFeatured?: (id: string, featured: boolean) => void;
+  onViewDetails?: (achievement: Achievement) => void;
 }
 
-export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeatured }: Props) {
+export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeatured, onViewDetails }: Props) {
   const [speedFormat, setSpeedFormat] = useState<'speed' | 'pace'>('pace');
 
   useEffect(() => {
@@ -43,8 +44,21 @@ export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeature
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on action buttons or links
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) return;
+    
+    if (onViewDetails) {
+      onViewDetails(achievement);
+    }
+  };
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card 
+      className={cn("hover:shadow-lg transition-shadow", onViewDetails && "cursor-pointer")}
+      onClick={handleCardClick}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
