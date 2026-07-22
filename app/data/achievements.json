@@ -5,6 +5,7 @@
       "date": "2026-06-15",
       "category": "Trail",
       "distance": 42.1,
+      "time": "4:32:18",
       "name": "Ultra Trail du Mont Blanc - Updated",
       "photoLinks": [
         "https://example.com/utmb/photo1.jpg",
@@ -20,13 +21,15 @@
       "totalParticipants": 850,
       "categoryParticipants": 120,
       "badges": [],
-      "denivelePositive": 1500
+      "denivelePositive": 1500,
+      "deniveleNegative": 1450
     },
     {
       "id": "660e8400-e29b-41d4-a716-446655440001",
       "date": "2026-04-22",
       "category": "Run",
       "distance": 21.1,
+      "time": "1:45:23",
       "name": "Semi-Marathon de Paris",
       "photoLinks": [
         "https://example.com/paris/finish.jpg"
@@ -46,6 +49,7 @@
       "date": "2025-11-10",
       "category": "Trail",
       "distance": 15.5,
+      "time": "1:18:45",
       "name": "Trail des Crêtes",
       "photoLinks": [],
       "videoLinks": [

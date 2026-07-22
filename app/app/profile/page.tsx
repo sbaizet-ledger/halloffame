@@ -115,6 +115,7 @@ export default function ProfilePage() {
     primaryColor: '#f97316', // Default orange
     showQuoteOfTheDay: true,
     showJourneyMilestones: true,
+    speedDisplayFormat: 'pace' as 'speed' | 'pace',
   });
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -153,6 +154,7 @@ export default function ProfilePage() {
         primaryColor: oklchToHex(data.theme?.primaryColor || 'oklch(0.65 0.24 45)'),
         showQuoteOfTheDay: data.showQuoteOfTheDay !== false,
         showJourneyMilestones: data.showJourneyMilestones !== false,
+        speedDisplayFormat: data.speedDisplayFormat || 'pace',
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
@@ -239,6 +241,7 @@ export default function ProfilePage() {
         customMilestones: profile?.customMilestones,
         showQuoteOfTheDay: formData.showQuoteOfTheDay,
         showJourneyMilestones: formData.showJourneyMilestones,
+        speedDisplayFormat: formData.speedDisplayFormat,
       };
 
       const profileRes = await fetch('/api/profile', {
@@ -456,6 +459,26 @@ export default function ProfilePage() {
                   checked={formData.showJourneyMilestones}
                   onCheckedChange={(checked) => handleInputChange('showJourneyMilestones', String(checked))}
                 />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="speedFormat">Effort Metric Display</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Choose how to display effort-adjusted performance
+                  </p>
+                </div>
+                <Select
+                  value={formData.speedDisplayFormat}
+                  onValueChange={(value) => handleInputChange('speedDisplayFormat', value as 'speed' | 'pace')}
+                >
+                  <SelectTrigger id="speedFormat" className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="speed">Speed (km/h)</SelectItem>
+                    <SelectItem value="pace">Pace (min/km)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

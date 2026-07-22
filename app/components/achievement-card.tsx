@@ -1,12 +1,14 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Achievement } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Calendar, MapPin, Trophy, TrendingUp, Image as ImageIcon, Video, ExternalLink, Pencil, Trash2, Star } from 'lucide-react';
+import { Calendar, MapPin, Trophy, TrendingUp, Image as ImageIcon, Video, ExternalLink, Pencil, Trash2, Star, Clock, Gauge } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BadgeIcon } from '@/components/badge-icon';
+import { calculatePace, formatPace, calculateEffortSpeed, calculateEffortPace, formatSpeed } from '@/lib/calculations';
 
 interface Props {
   achievement: Achievement;
@@ -16,6 +18,19 @@ interface Props {
 }
 
 export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeatured }: Props) {
+  const [speedFormat, setSpeedFormat] = useState<'speed' | 'pace'>('pace');
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.speedDisplayFormat) {
+          setSpeedFormat(data.speedDisplayFormat);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
@@ -50,9 +65,32 @@ export function AchievementCard({ achievement, onEdit, onDelete, onToggleFeature
               </div>
             )}
             <CardTitle className="text-xl">{achievement.name}</CardTitle>
-            <CardDescription className="flex items-center gap-1 mt-1">
-              <MapPin className="h-3 w-3" />
-              {achievement.distance} km
+            <CardDescription className="flex items-center gap-3 mt-1 flex-wrap">
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {achievement.distance} km
+              </span>
+              {achievement.time && (
+                <>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {achievement.time}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    {formatPace(calculatePace(achievement.distance, achievement.time))}/km
+                  </span>
+                  {achievement.denivelePositive && (
+                    <span className="flex items-center gap-1">
+                      <Gauge className="h-3 w-3" />
+                      {speedFormat === 'speed' 
+                        ? `${formatSpeed(calculateEffortSpeed(achievement.distance, achievement.time, achievement.denivelePositive))} km/h effort`
+                        : `${formatPace(calculateEffortPace(achievement.distance, achievement.time, achievement.denivelePositive))}/km effort`
+                      }
+                    </span>
+                  )}
+                </>
+              )}
             </CardDescription>
           </div>
           {(onEdit || onDelete || onToggleFeatured) && (

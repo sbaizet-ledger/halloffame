@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readAchievements } from '@/lib/achievements';
-import { Statistics, TimelineDataPoint, RankingPercentageDataPoint } from '@/lib/types';
+import { Statistics, TimelineDataPoint, RankingPercentageDataPoint, PaceDataPoint } from '@/lib/types';
+import { calculatePace, calculateEffortSpeed, calculateEffortPace } from '@/lib/calculations';
 
 export async function GET() {
   try {
@@ -26,9 +27,18 @@ export async function GET() {
           longestTrail: null,
           longestRun: null,
         },
+        pace: {
+          avgPace: 0,
+          bestPace: 0,
+          avgEffortSpeed: 0,
+          bestEffortSpeed: 0,
+          avgEffortPace: 0,
+          bestEffortPace: 0,
+        },
         timelineMonthly: [],
         timelineYearly: [],
         rankingPercentageTimeline: [],
+        paceTimeline: [],
       } as Statistics);
     }
 
@@ -184,13 +194,81 @@ export async function GET() {
       })
       .sort((a, b) => a.date.localeCompare(b.date));
 
+    // Pace and effort speed calculations
+    const timedAchievements = achievements.filter(a => a.time);
+    
+    const paceStats = timedAchievements.length > 0
+      ? (() => {
+          const paces = timedAchievements.map(a => calculatePace(a.distance, a.time!));
+          const avgPace = paces.reduce((sum, p) => sum + p, 0) / paces.length;
+          const bestPace = Math.min(...paces);
+
+          const effortAchievements = timedAchievements.filter(a => a.denivelePositive);
+          const effortSpeeds = effortAchievements.map(a => 
+            calculateEffortSpeed(a.distance, a.time!, a.denivelePositive)
+          );
+          const effortPaces = effortAchievements.map(a => 
+            calculateEffortPace(a.distance, a.time!, a.denivelePositive)
+          );
+          
+          const avgEffortSpeed = effortSpeeds.length > 0
+            ? effortSpeeds.reduce((sum, s) => sum + s, 0) / effortSpeeds.length
+            : 0;
+          const bestEffortSpeed = effortSpeeds.length > 0
+            ? Math.max(...effortSpeeds)
+            : 0;
+          const avgEffortPace = effortPaces.length > 0
+            ? effortPaces.reduce((sum, p) => sum + p, 0) / effortPaces.length
+            : 0;
+          const bestEffortPace = effortPaces.length > 0
+            ? Math.min(...effortPaces)
+            : 0;
+
+          return {
+            avgPace: Math.round(avgPace * 100) / 100,
+            bestPace: Math.round(bestPace * 100) / 100,
+            avgEffortSpeed: Math.round(avgEffortSpeed * 100) / 100,
+            bestEffortSpeed: Math.round(bestEffortSpeed * 100) / 100,
+            avgEffortPace: Math.round(avgEffortPace * 100) / 100,
+            bestEffortPace: Math.round(bestEffortPace * 100) / 100,
+          };
+        })()
+      : {
+          avgPace: 0,
+          bestPace: 0,
+          avgEffortSpeed: 0,
+          bestEffortSpeed: 0,
+          avgEffortPace: 0,
+          bestEffortPace: 0,
+        };
+
+    // Pace timeline
+    const paceTimeline: PaceDataPoint[] = timedAchievements
+      .map(a => {
+        const dataPoint: PaceDataPoint = {
+          date: a.date,
+          raceName: a.name,
+          pace: calculatePace(a.distance, a.time!),
+        };
+
+        if (a.denivelePositive) {
+          dataPoint.effortSpeed = calculateEffortSpeed(a.distance, a.time!, a.denivelePositive);
+          dataPoint.effortPace = calculateEffortPace(a.distance, a.time!, a.denivelePositive);
+        }
+
+        return dataPoint;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+
     const statistics: Statistics = {
       overview,
       rankings,
       records,
+      pace: paceStats,
       timelineMonthly,
       timelineYearly,
       rankingPercentageTimeline,
+      paceTimeline,
     };
 
     return NextResponse.json(statistics);

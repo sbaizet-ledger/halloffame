@@ -6,9 +6,11 @@ import { Statistics, Milestone } from '@/lib/types';
 import { StatCard } from '@/components/stat-card';
 import { DistanceChart } from '@/components/distance-chart';
 import { RankingPercentageChart } from '@/components/ranking-percentage-chart';
+import { PaceChart } from '@/components/pace-chart';
 import { MilestonesTimeline } from '@/components/milestones-timeline';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { formatPace } from '@/lib/calculations';
 import { 
   ArrowLeft, 
   Trophy, 
@@ -19,7 +21,9 @@ import {
   Target,
   Medal,
   TrendingUp,
-  Loader2
+  Loader2,
+  Clock,
+  Gauge
 } from 'lucide-react';
 
 export default function StatisticsPage() {
@@ -28,10 +32,12 @@ export default function StatisticsPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [speedFormat, setSpeedFormat] = useState<'speed' | 'pace'>('pace');
 
   useEffect(() => {
     fetchStatistics();
     fetchMilestones();
+    fetchUserPreference();
   }, []);
 
   const fetchStatistics = async () => {
@@ -58,6 +64,18 @@ export default function StatisticsPage() {
     } catch (err) {
       console.error('Milestones fetch error:', err);
       // Non-critical, continue without milestones
+    }
+  };
+
+  const fetchUserPreference = async () => {
+    try {
+      const res = await fetch('/api/profile');
+      if (res.ok) {
+        const data = await res.json();
+        setSpeedFormat(data.speedDisplayFormat || 'pace');
+      }
+    } catch (err) {
+      console.error('Failed to fetch user preference:', err);
     }
   };
 
@@ -114,7 +132,7 @@ export default function StatisticsPage() {
     );
   }
 
-  const { overview, rankings, records } = statistics;
+  const { overview, rankings, records, pace } = statistics;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
@@ -218,6 +236,53 @@ export default function StatisticsPage() {
           </div>
         </div>
 
+        {/* Pace & Speed Section */}
+        {pace && pace.avgPace > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Pace & Speed</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Average Pace"
+                value={formatPace(pace.avgPace)}
+                subtitle="min/km"
+                icon={Clock}
+                iconColor="text-cyan-600"
+              />
+              <StatCard
+                title="Best Pace"
+                value={formatPace(pace.bestPace)}
+                subtitle="min/km"
+                icon={Clock}
+                iconColor="text-teal-600"
+              />
+              {pace.avgEffortSpeed > 0 && (
+                <>
+                  <StatCard
+                    title={speedFormat === 'speed' ? 'Avg Effort Speed' : 'Avg Effort Pace'}
+                    value={speedFormat === 'speed' 
+                      ? `${pace.avgEffortSpeed.toFixed(2)} km/h`
+                      : formatPace(pace.avgEffortPace)
+                    }
+                    subtitle={speedFormat === 'speed' ? 'with elevation' : 'min/km with elevation'}
+                    icon={Gauge}
+                    iconColor="text-indigo-600"
+                  />
+                  <StatCard
+                    title={speedFormat === 'speed' ? 'Best Effort Speed' : 'Best Effort Pace'}
+                    value={speedFormat === 'speed'
+                      ? `${pace.bestEffortSpeed.toFixed(2)} km/h`
+                      : formatPace(pace.bestEffortPace)
+                    }
+                    subtitle={speedFormat === 'speed' ? 'with elevation' : 'min/km with elevation'}
+                    icon={Gauge}
+                    iconColor="text-purple-600"
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Distance Chart */}
         <div className="mb-8">
           <DistanceChart
@@ -230,6 +295,13 @@ export default function StatisticsPage() {
         <div className="mb-8">
           <RankingPercentageChart data={statistics.rankingPercentageTimeline} />
         </div>
+
+        {/* Pace Chart */}
+        {statistics.paceTimeline.length > 0 && (
+          <div className="mb-8">
+            <PaceChart data={statistics.paceTimeline} speedFormat={speedFormat} />
+          </div>
+        )}
       </div>
     </div>
   );

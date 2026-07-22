@@ -80,6 +80,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
     date: '',
     category: 'Trail' as 'Trail' | 'Run',
     distance: '',
+    time: '',
     denivelePositive: '',
     deniveleNegative: '',
     totalParticipants: '',
@@ -130,6 +131,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
         date: achievement.date,
         category: achievement.category,
         distance: String(achievement.distance),
+        time: achievement.time || '',
         denivelePositive: achievement.denivelePositive ? String(achievement.denivelePositive) : '',
         deniveleNegative: achievement.deniveleNegative ? String(achievement.deniveleNegative) : '',
         totalParticipants: achievement.totalParticipants ? String(achievement.totalParticipants) : '',
@@ -176,6 +178,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       date: '',
       category: 'Trail',
       distance: '',
+      time: '',
       denivelePositive: '',
       deniveleNegative: '',
       totalParticipants: '',
@@ -197,6 +200,14 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
     if (!formData.date) newErrors.date = 'Date is required';
     if (!formData.distance || parseFloat(formData.distance) <= 0) {
       newErrors.distance = 'Distance must be greater than 0';
+    }
+
+    // Optional time validation (HH:MM:SS format)
+    if (formData.time) {
+      const timeRegex = /^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/;
+      if (!timeRegex.test(formData.time)) {
+        newErrors.time = 'Format must be HH:MM:SS';
+      }
     }
 
     // Optional denivele validation
@@ -265,6 +276,7 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
       date: formData.date,
       category: formData.category,
       distance: parseFloat(formData.distance),
+      ...(formData.time && { time: formData.time }),
       ...(formData.denivelePositive && { denivelePositive: parseFloat(formData.denivelePositive) }),
       ...(formData.deniveleNegative && { deniveleNegative: parseFloat(formData.deniveleNegative) }),
       ...(formData.totalParticipants && { totalParticipants: parseInt(formData.totalParticipants) }),
@@ -367,19 +379,32 @@ export function AchievementForm({ open, achievement, onClose, onSubmit }: Props)
               </div>
             </div>
 
-            {/* Distance */}
-            <div className="space-y-2">
-              <Label htmlFor="distance">Distance (km) *</Label>
-              <Input
-                id="distance"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.distance}
-                onChange={(e) => setFormData({ ...formData, distance: e.target.value })}
-                placeholder="42.2"
-              />
-              {errors.distance && <p className="text-sm text-destructive">{errors.distance}</p>}
+            {/* Distance and Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="distance">Distance (km) *</Label>
+                <Input
+                  id="distance"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.distance}
+                  onChange={(e) => setFormData({ ...formData, distance: e.target.value })}
+                  placeholder="42.2"
+                />
+                {errors.distance && <p className="text-sm text-destructive">{errors.distance}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="time">Time (HH:MM:SS)</Label>
+                <Input
+                  id="time"
+                  type="text"
+                  value={formData.time}
+                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  placeholder="3:24:15"
+                />
+                {errors.time && <p className="text-sm text-destructive">{errors.time}</p>}
+              </div>
             </div>
 
             {/* Denivele */}

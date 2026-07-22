@@ -14,5 +14,6 @@
     "instagram": "@sebastienbzt"
   },
   "showQuoteOfTheDay": true,
-  "showJourneyMilestones": false
+  "showJourneyMilestones": false,
+  "speedDisplayFormat": "pace"
 }

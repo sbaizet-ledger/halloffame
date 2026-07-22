@@ -1,8 +1,11 @@
+export type SpeedDisplayFormat = 'speed' | 'pace'; // km/h or min/km
+
 export interface Achievement {
   id: string;
   date: string;
   category: "Trail" | "Run";
   distance: number;
+  time?: string; // HH:MM:SS format
   denivelePositive?: number;
   deniveleNegative?: number;
   totalParticipants?: number;
@@ -47,6 +50,14 @@ export interface RankingPercentageDataPoint {
   categoryPercentage?: number;
 }
 
+export interface PaceDataPoint {
+  date: string;
+  raceName: string;
+  pace: number; // min/km
+  effortSpeed?: number; // km/h
+  effortPace?: number; // min/km
+}
+
 export interface Statistics {
   overview: {
     totalRaces: number;
@@ -66,9 +77,18 @@ export interface Statistics {
     longestTrail: DistanceRecord | null;
     longestRun: DistanceRecord | null;
   };
+  pace: {
+    avgPace: number; // min/km
+    bestPace: number; // min/km
+    avgEffortSpeed: number; // km/h
+    bestEffortSpeed: number; // km/h
+    avgEffortPace: number; // min/km
+    bestEffortPace: number; // min/km
+  };
   timelineMonthly: TimelineDataPoint[];
   timelineYearly: TimelineDataPoint[];
   rankingPercentageTimeline: RankingPercentageDataPoint[];
+  paceTimeline: PaceDataPoint[];
 }
 
 export interface ThemeConfig {
@@ -99,6 +119,7 @@ export interface UserProfile {
   customMilestones?: CustomMilestone[];
   showQuoteOfTheDay?: boolean;
   showJourneyMilestones?: boolean;
+  speedDisplayFormat?: SpeedDisplayFormat;
 }
 
 export type BadgeCriteria =
