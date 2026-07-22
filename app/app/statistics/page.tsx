@@ -224,13 +224,6 @@ export default function StatisticsPage() {
             yearlyData={statistics.timelineYearly}
           />
         </div>
-
-        {/* Milestones Timeline */}
-        {milestones.length > 0 && (
-          <div className="mb-8">
-            <MilestonesTimeline milestones={milestones} compact={false} />
-          </div>
-        )}
       </div>
     </div>
   );
