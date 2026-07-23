@@ -2,7 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { UserProfile } from './types';
 
-const PROFILE_PATH = path.join(process.cwd(), 'data', 'profile.json');
+/**
+ * Get user-specific profile file path
+ */
+function getProfilePath(userId: string): string {
+  return path.join(process.cwd(), 'data', 'users', userId, 'profile.json');
+}
 
 export function getDefaultProfile(): UserProfile {
   return {
@@ -14,13 +19,21 @@ export function getDefaultProfile(): UserProfile {
   };
 }
 
-export function readProfile(): UserProfile {
+export function readProfile(userId: string): UserProfile {
   try {
-    if (!fs.existsSync(PROFILE_PATH)) {
+    const profilePath = getProfilePath(userId);
+    const dataDir = path.dirname(profilePath);
+    
+    // Ensure data directory exists
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
+    if (!fs.existsSync(profilePath)) {
       return getDefaultProfile();
     }
 
-    const data = fs.readFileSync(PROFILE_PATH, 'utf-8');
+    const data = fs.readFileSync(profilePath, 'utf-8');
     const profile = JSON.parse(data) as UserProfile;
     
     // Ensure theme exists
@@ -35,15 +48,17 @@ export function readProfile(): UserProfile {
   }
 }
 
-export function writeProfile(profile: UserProfile): void {
+export function writeProfile(userId: string, profile: UserProfile): void {
   try {
+    const profilePath = getProfilePath(userId);
+    const dataDir = path.dirname(profilePath);
+    
     // Ensure data directory exists
-    const dataDir = path.dirname(PROFILE_PATH);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    fs.writeFileSync(PROFILE_PATH, JSON.stringify(profile, null, 2), 'utf-8');
+    fs.writeFileSync(profilePath, JSON.stringify(profile, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error writing profile:', error);
     throw new Error('Failed to save profile');

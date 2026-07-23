@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import { readAchievements } from '@/lib/achievements';
+import { getCurrentUserId } from '@/lib/user-helpers';
 import { Statistics, TimelineDataPoint, RankingPercentageDataPoint, PaceDataPoint } from '@/lib/types';
 import { calculatePace, calculateEffortSpeed, calculateEffortPace } from '@/lib/calculations';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const achievements = readAchievements();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    
+    // If no userId provided, use current authenticated user
+    const finalUserId = userId || await getCurrentUserId();
+    
+    if (!finalUserId) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+    
+    const achievements = readAchievements(finalUserId);
 
     if (achievements.length === 0) {
       return NextResponse.json({

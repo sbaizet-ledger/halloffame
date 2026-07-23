@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { updateAchievement, deleteAchievement, getAchievementById, readAchievements } from '@/lib/achievements';
+import { requireAuth } from '@/lib/user-helpers';
 
 /**
  * PUT /api/achievements/[id]
@@ -12,10 +13,11 @@ export async function PUT(
   const { id } = await params;
   
   try {
+    const userId = await requireAuth();
     const updates = await request.json();
 
     // Check achievement exists
-    const existing = getAchievementById(id);
+    const existing = getAchievementById(userId, id);
     if (!existing) {
       return NextResponse.json(
         { error: 'Achievement not found' },
@@ -25,7 +27,7 @@ export async function PUT(
 
     // Check featured limit (max 3)
     if ('featured' in updates && updates.featured === true && !existing.featured) {
-      const allAchievements = readAchievements();
+      const allAchievements = readAchievements(userId);
       const currentFeaturedCount = allAchievements.filter(a => a.featured && a.id !== id).length;
       
       if (currentFeaturedCount >= 3) {
@@ -98,7 +100,7 @@ export async function PUT(
     }
 
     // Update achievement
-    const updated = updateAchievement(id, updates);
+    const updated = updateAchievement(userId, id, updates);
     
     if (!updated) {
       return NextResponse.json(
@@ -110,6 +112,15 @@ export async function PUT(
     return NextResponse.json({ achievement: updated });
   } catch (error) {
     console.error(`PUT /api/achievements/${id} error:`, error);
+    
+    // Handle auth errors
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update achievement' },
       { status: 500 }
@@ -128,8 +139,10 @@ export async function DELETE(
   const { id } = await params;
   
   try {
+    const userId = await requireAuth();
+    
     // Delete achievement
-    const success = deleteAchievement(id);
+    const success = deleteAchievement(userId, id);
     
     if (!success) {
       return NextResponse.json(
@@ -141,6 +154,15 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(`DELETE /api/achievements/${id} error:`, error);
+    
+    // Handle auth errors
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to delete achievement' },
       { status: 500 }

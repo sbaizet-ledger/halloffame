@@ -1,3 +1,15 @@
+// NextAuth.js session type extension
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+      name?: string | null
+      email?: string | null
+      image?: string | null
+    }
+  }
+}
+
 export type SpeedDisplayFormat = 'speed' | 'pace'; // km/h or min/km
 
 export interface Achievement {

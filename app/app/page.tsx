@@ -7,7 +7,7 @@ import { AchievementCard } from '@/components/achievement-card';
 import { AchievementTable } from '@/components/achievement-table';
 import { AchievementForm } from '@/components/achievement-form';
 import { AchievementDetailDialog } from '@/components/achievement-detail-dialog';
-import { AuthDialog } from '@/components/auth-dialog';
+
 import { FilterToolbar } from '@/components/filter-toolbar';
 import { ProfileHero } from '@/components/profile-hero';
 import { FeaturedAchievements } from '@/components/featured-achievements';
@@ -26,14 +26,15 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Trophy, Loader2, BarChart3, Lock } from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from 'next-auth/react';
 
 type CategoryFilter = 'all' | 'Trail' | 'Run';
 type SortOption = 'date' | 'distance';
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated, login, logout } = useAuth();
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated';
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [filtered, setFiltered] = useState<Achievement[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -42,7 +43,6 @@ export default function Home() {
   const [error, setError] = useState('');
   
   const [showForm, setShowForm] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
@@ -61,12 +61,16 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch data on mount
+  // Fetch data when authenticated
   useEffect(() => {
-    fetchAchievements();
-    fetchProfile();
-    fetchMilestones();
-  }, []);
+    if (status === 'authenticated') {
+      fetchAchievements();
+      fetchProfile();
+      fetchMilestones();
+    } else if (status === 'unauthenticated') {
+      setLoading(false);
+    }
+  }, [status]);
 
   // Apply filters/sorts when data or filters change
   useEffect(() => {
@@ -134,11 +138,7 @@ export default function Home() {
     }
   };
 
-  // Auth flow
-  const handleLoginSubmit = async (password: string) => {
-    await login(password);
-    setShowLoginDialog(false);
-  };
+
 
   // CRUD operations
   const handleCreate = async (data: Omit<Achievement, 'id'>) => {
@@ -264,10 +264,12 @@ export default function Home() {
             <BarChart3 className="h-4 w-4 mr-2" />
             Statistics
           </Button>
-          {!isAuthenticated ? (
-            <Button onClick={() => setShowLoginDialog(true)} size="lg">
+          {status === 'loading' ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : !isAuthenticated ? (
+            <Button onClick={() => window.location.href = '/api/auth/signin'} size="lg">
               <Lock className="mr-2 h-4 w-4" />
-              Admin Login
+              Sign In
             </Button>
           ) : (
             <>
@@ -275,8 +277,8 @@ export default function Home() {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Achievement
               </Button>
-              <Button variant="outline" size="lg" onClick={logout}>
-                Logout
+              <Button variant="outline" size="lg" onClick={() => window.location.href = '/api/auth/signout'}>
+                Sign Out
               </Button>
             </>
           )}
@@ -405,12 +407,6 @@ export default function Home() {
           achievement={editingAchievement || undefined}
           onClose={handleFormClose}
           onSubmit={handleFormSubmit}
-        />
-
-        <AuthDialog
-          open={showLoginDialog}
-          onClose={() => setShowLoginDialog(false)}
-          onSubmit={handleLoginSubmit}
         />
 
         <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

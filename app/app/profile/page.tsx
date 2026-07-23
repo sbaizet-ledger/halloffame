@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserProfile } from '@/lib/types';
-import { useAuth } from '@/lib/auth-context';
+import { useSession } from 'next-auth/react';
 import { AvatarUpload } from '@/components/avatar-upload';
-import { AuthDialog } from '@/components/auth-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -95,7 +94,8 @@ function oklchToHex(oklch: string): string {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, login, logout } = useAuth();
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated';
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -120,7 +120,6 @@ export default function ProfilePage() {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -181,11 +180,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLoginSubmit = async (password: string) => {
-    await login(password);
-    setShowLoginDialog(false);
-    await handleSaveInternal();
-  };
+
 
   const handleSave = async () => {
     if (!isAuthenticated) {
@@ -538,13 +533,6 @@ export default function ProfilePage() {
             </Button>
           </div>
         </div>
-
-        {/* Auth Dialog */}
-        <AuthDialog
-          open={showLoginDialog}
-          onClose={() => setShowLoginDialog(false)}
-          onSubmit={handleLoginSubmit}
-        />
       </div>
     </div>
   );

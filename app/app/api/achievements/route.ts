@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
 import { readAchievements, createAchievement } from '@/lib/achievements';
+import { getCurrentUserId, requireAuth } from '@/lib/user-helpers';
 import { Achievement } from '@/lib/types';
 
 /**
  * GET /api/achievements
- * Return all achievements
+ * Return all achievements (public with userId query param)
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const achievements = readAchievements();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    
+    // If no userId provided, use current authenticated user
+    const finalUserId = userId || await getCurrentUserId();
+    
+    if (!finalUserId) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+    
+    const achievements = readAchievements(finalUserId);
     return NextResponse.json({ achievements });
   } catch (error) {
     console.error('GET /api/achievements error:', error);
@@ -25,6 +36,7 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
+    const userId = await requireAuth();
     const achievementData = await request.json();
 
     // Validate required fields
@@ -101,11 +113,20 @@ export async function POST(request: Request) {
     }
 
     // Create achievement
-    const newAchievement = createAchievement(achievementData as Omit<Achievement, 'id'>);
+    const newAchievement = createAchievement(userId, achievementData as Omit<Achievement, 'id'>);
     
     return NextResponse.json({ achievement: newAchievement }, { status: 201 });
   } catch (error) {
     console.error('POST /api/achievements error:', error);
+    
+    // Handle auth errors
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create achievement' },
       { status: 500 }
