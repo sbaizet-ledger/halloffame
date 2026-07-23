@@ -183,10 +183,6 @@ export default function ProfilePage() {
 
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      setShowLoginDialog(true);
-      return;
-    }
     await handleSaveInternal();
   };
 

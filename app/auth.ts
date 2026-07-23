@@ -15,7 +15,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // Preserve Google's stable user ID across sessions
     jwt({ token, account, profile }) {
       // On first sign-in, use Google's sub as the stable user ID
-      if (account && profile) {
+      if (account && profile?.sub) {
         token.sub = profile.sub  // Google's stable user ID (never changes)
       }
       return token
