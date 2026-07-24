@@ -77,18 +77,86 @@ Access the app at `http://your-raspberry-pi-ip:3000`
 
 ## Configuration
 
-### Authentication
+### Environment Variables
 
-Set environment variables for edit access:
+The application uses the following environment variables:
 
-```bash
-# .env.local
-ADMIN_PASSWORD=your-secure-password
+#### Required Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `AUTH_SECRET` | NextAuth.js session encryption secret | Generate with: `npx auth secret` |
+| `AUTH_GOOGLE_ID` | Google OAuth Client ID | From Google Cloud Console |
+| `AUTH_GOOGLE_SECRET` | Google OAuth Client Secret | From Google Cloud Console |
+| `NEXTAUTH_URL` | Public URL of the application | `https://hall-of-fame.lepetitmontagnard.org` |
+
+#### Optional Variables
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `AUTH_TRUST_HOST` | Trust configuration for reverse proxies | `false` | `true` or `host1.com,host2.com` |
+| `ADMIN_PASSWORD` | Legacy password (migration only) | - | `changeme123` |
+| `JWT_SECRET` | Legacy JWT secret (migration only) | - | Auto-generated |
+
+#### AUTH_TRUST_HOST Configuration
+
+This variable is **REQUIRED** when deploying behind a reverse proxy (Cloudflare Tunnel, nginx, Traefik, etc.).
+
+**Options:**
+- **Not set or `false`**: Strict host checking (default, recommended for development)
+- **`true`**: Trust all hosts (use for reverse proxies like Cloudflare Tunnel)
+- **`host1.com,host2.com`**: Trust specific comma-separated hosts
+
+**Example for Cloudflare Tunnel:**
+```env
+AUTH_TRUST_HOST=true
+```
+
+**Example for specific hosts:**
+```env
+AUTH_TRUST_HOST=halloffame.lepetitmontagnard.org,hall-of-fame.lepetitmontagnard.org
+```
+
+**Why this is needed:**
+- Reverse proxies change the `Host` header when forwarding requests
+- NextAuth v5 requires explicit trust configuration to accept proxied requests
+- Without this, you'll get `UntrustedHost` errors in production
+
+### Example Configuration Files
+
+#### Development (`.env.local`)
+
+```env
+# NextAuth.js
+AUTH_SECRET=<generated-by-npx-auth-secret>
+AUTH_GOOGLE_ID=<your-google-client-id>
+AUTH_GOOGLE_SECRET=<your-google-client-secret>
+NEXTAUTH_URL=http://localhost:3000
+
+# Trust Host (optional in development)
+# AUTH_TRUST_HOST=false
+
+# Legacy (for migration only)
+ADMIN_PASSWORD=changeme123
+JWT_SECRET=<generated>
+```
+
+#### Production (Docker / Portainer)
+
+```env
+# NextAuth.js
+AUTH_SECRET=<your-production-secret>
+AUTH_GOOGLE_ID=<your-google-client-id>
+AUTH_GOOGLE_SECRET=<your-google-client-secret>
+NEXTAUTH_URL=https://hall-of-fame.lepetitmontagnard.org
+
+# REQUIRED for Cloudflare Tunnel / reverse proxy
+AUTH_TRUST_HOST=true
 ```
 
 ### Data Storage
 
-Achievements are stored in `/data/achievements.json`. The file is automatically created on first run.
+Achievements are stored in `/data/users/{userId}/achievements.json` (per-user storage for multi-user support). Files are automatically created on first use.
 
 **Example JSON structure:**
 

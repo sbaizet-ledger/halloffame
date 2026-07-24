@@ -863,6 +863,13 @@ AUTH_GOOGLE_ID=<from Google Cloud Console>
 AUTH_GOOGLE_SECRET=<from Google Cloud Console>
 NEXTAUTH_URL=http://localhost:3000
 
+# Trust Host Configuration (for reverse proxies)
+# Options:
+#   - Not set or 'false': Strict host checking (recommended for development)
+#   - 'true': Trust all hosts (use for reverse proxies like Cloudflare Tunnel)
+#   - 'host1.com,host2.com': Trust specific comma-separated hosts
+# AUTH_TRUST_HOST=false
+
 # Optional: for migration only
 ADMIN_PASSWORD=changeme123
 JWT_SECRET=QvPPSoL/x36C65fuYQ9GnvZf9CdLTGtA4ZxMIv9Cf0Y=
@@ -876,6 +883,11 @@ AUTH_SECRET=<same as dev or regenerate>
 AUTH_GOOGLE_ID=<same as dev>
 AUTH_GOOGLE_SECRET=<same as dev>
 NEXTAUTH_URL=https://halloffame.lepetitmontagnard.org
+
+# REQUIRED for reverse proxies (Cloudflare Tunnel, nginx, Traefik, etc.)
+AUTH_TRUST_HOST=true
+# Or specify exact hosts:
+# AUTH_TRUST_HOST=halloffame.lepetitmontagnard.org,hall-of-fame.lepetitmontagnard.org
 ```
 
 ---
@@ -892,10 +904,35 @@ NEXTAUTH_URL=https://halloffame.lepetitmontagnard.org
 
 Add both to Google Cloud Console if testing both environments.
 
+### Deployment with Reverse Proxy (Cloudflare Tunnel, nginx, Traefik)
+
+**IMPORTANT:** If deploying behind a reverse proxy (Cloudflare Tunnel, nginx, Traefik, etc.), you MUST set:
+
+```env
+AUTH_TRUST_HOST=true
+```
+
+**Why this is needed:**
+- Reverse proxies change the `Host` header when forwarding requests
+- NextAuth v5 requires explicit trust configuration to accept proxied requests
+- Without this, you'll get `UntrustedHost` errors
+
+**Security considerations:**
+- Setting `AUTH_TRUST_HOST=true` is safe when using HTTPS (reverse proxy handles SSL)
+- Your internal endpoint should not be publicly accessible
+- The reverse proxy acts as a trusted infrastructure component
+
+**Alternative (more restrictive):**
+```env
+# Trust only specific hosts
+AUTH_TRUST_HOST=halloffame.lepetitmontagnard.org,hall-of-fame.lepetitmontagnard.org
+```
+
 ### Vercel Deployment
 
 1. **Environment Variables:**
    - Set `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `NEXTAUTH_URL` in Vercel dashboard
+   - Set `AUTH_TRUST_HOST=true` if behind a proxy
    - Remove `ADMIN_PASSWORD`, `JWT_SECRET` (no longer needed in production)
 
 2. **File System:**
@@ -906,6 +943,33 @@ Add both to Google Cloud Console if testing both environments.
 3. **Domain:**
    - Configure custom domain: `halloffame.lepetitmontagnard.org`
    - Update `NEXTAUTH_URL` environment variable
+
+### Docker Deployment (Raspberry Pi / Self-Hosted)
+
+**Recommended for Cloudflare Tunnel setup:**
+
+1. **Set environment variables in Portainer or docker-compose:**
+   ```env
+   AUTH_SECRET=<your-secret>
+   AUTH_GOOGLE_ID=<your-google-client-id>
+   AUTH_GOOGLE_SECRET=<your-google-client-secret>
+   NEXTAUTH_URL=https://hall-of-fame.lepetitmontagnard.org
+   AUTH_TRUST_HOST=true  # REQUIRED for Cloudflare Tunnel
+   ```
+
+2. **Cloudflare Tunnel configuration:**
+   - Ensure tunnel forwards to `http://192.168.1.15:8002` (or your internal endpoint)
+   - Cloudflare automatically sets correct forwarding headers
+   - No additional tunnel configuration needed
+
+3. **Docker Compose:**
+   - Ports mapped as `8002:3000`
+   - Volumes persist data: `halloffame-data:/app/data` and `halloffame-uploads:/app/public/uploads`
+
+4. **Verify deployment:**
+   - Visit `https://hall-of-fame.lepetitmontagnard.org`
+   - Sign in with Google
+   - Should not see `UntrustedHost` errors
 
 ---
 
