@@ -3,10 +3,9 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export async function saveAvatar(file: File): Promise<string> {
+export async function saveAvatar(userId: string, file: File): Promise<string> {
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
     throw new Error('File too large (max 5MB)');
@@ -18,9 +17,12 @@ export async function saveAvatar(file: File): Promise<string> {
     throw new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.');
   }
 
+  // User-specific upload directory
+  const userUploadDir = path.join(process.cwd(), 'public', 'uploads', userId);
+  
   // Ensure upload directory exists
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    await mkdir(UPLOAD_DIR, { recursive: true });
+  if (!fs.existsSync(userUploadDir)) {
+    await mkdir(userUploadDir, { recursive: true });
   }
 
   // Read file buffer
@@ -38,13 +40,13 @@ export async function saveAvatar(file: File): Promise<string> {
 
     // Generate filename
     const filename = `avatar-${Date.now()}.webp`;
-    const filepath = path.join(UPLOAD_DIR, filename);
+    const filepath = path.join(userUploadDir, filename);
 
     // Save to disk
     await writeFile(filepath, processedBuffer);
 
-    // Return public path
-    return `/uploads/${filename}`;
+    // Return public path with userId
+    return `/uploads/${userId}/${filename}`;
   } catch (error) {
     console.error('Image processing error:', error);
     throw new Error('Failed to process image');

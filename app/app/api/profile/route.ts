@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
 import { readProfile, writeProfile } from '@/lib/profile';
+import { getCurrentUserId, requireAuth } from '@/lib/user-helpers';
 import { UserProfile } from '@/lib/types';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const profile = readProfile();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    
+    // If no userId provided, use current authenticated user
+    const finalUserId = userId || await getCurrentUserId();
+    
+    if (!finalUserId) {
+      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    }
+    
+    const profile = readProfile(finalUserId);
     return NextResponse.json(profile);
   } catch (error) {
     console.error('Profile read error:', error);
@@ -17,6 +28,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const userId = await requireAuth();
     const profile = await request.json();
 
     // Validate profile data
@@ -61,11 +73,20 @@ export async function PUT(request: Request) {
       theme: profile.theme || { primaryColor: 'oklch(0.65 0.24 45)' }
     };
 
-    writeProfile(updatedProfile);
+    writeProfile(userId, updatedProfile);
 
     return NextResponse.json(updatedProfile);
   } catch (error) {
     console.error('Profile update error:', error);
+    
+    // Handle auth errors
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }
